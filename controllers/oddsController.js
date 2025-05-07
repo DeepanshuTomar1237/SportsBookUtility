@@ -11,8 +11,6 @@ const extractMarketIdsByName = (sections, targetNames) => {
       if (marketData?.name) {
         const name = marketData.name.toLowerCase();
 
-        console.log(`Checking market: ${marketData.name}`); // Log each market to see if "Total Goals" is being missed
-
         for (const label of targetNames) {
           if (name.includes(label.toLowerCase()) && marketData?.id) {
             // Allow multiple entries for the same market name
@@ -77,34 +75,65 @@ exports.getOddsData = async (req, res) => {
       others: event.others,
     };
 
-    // Define only the target market names you want to extract
-    const targetNames = ['Full Time', 'Total Goals', 'Asian Handicap'];
+    // Define target market names for pre-match
+    const preMatchTargetNames = ['Full Time', 'Total Goals', 'Asian Handicap'];
+    
+    // Define target market names for live markets
+    const liveTargetNames = [
+      'Full Time', 
+      'Total Goals', 
+      'Asian Goal Line',
+      'Asian Handicap',
+      'Match Corners',
+      'Two Way Corners',
+      'Asian Corners',
+      'Corners Race'
+    ];
 
-    // Extract market IDs and names dynamically
-    const dynamicPrematch = extractMarketIdsByName(allSections, targetNames);
-
-    console.log('Dynamic Prematch:', dynamicPrematch); // Log the dynamic markets to check if 'TOTAL_GOALS' is present
-
-    // Extract the filtered market data based on dynamic market IDs
+    // Extract market IDs and names dynamically for pre-match
+    const dynamicPrematch = extractMarketIdsByName(allSections, preMatchTargetNames);
     const filteredPrematch = extractMarketsByIds(allSections, dynamicPrematch);
 
-    console.log('Filtered Prematch:', filteredPrematch); // Log the filtered market data
+    // Extract market IDs and names dynamically for live markets
+    const dynamicLive = extractMarketIdsByName(allSections, liveTargetNames);
+    const filteredLive = extractMarketsByIds(allSections, dynamicLive);
 
     // Dynamically create the PRE_MATCH_MARKETS object
     const PRE_MATCH_MARKETS = {};
+    const LIVE_MARKETS = {};
 
-    // Define only the keys you want to return (Full Time, Total Goals, Asian Handicap)
-    const requiredMarkets = ['FULL_TIME', 'TOTAL_GOALS', 'ASIAN_HANDICAP'];
+    // Define keys for pre-match markets
+    const preMatchRequiredMarkets = ['FULL_TIME', 'TOTAL_GOALS', 'ASIAN_HANDICAP'];
+    
+    // Define keys for live markets
+    const liveRequiredMarkets = [
+      'FULL_TIME',
+      'TOTAL_GOALS',
+      'ASIAN_GOAL_LINE',
+      'ASIAN_HANDICAP',
+      'MATCH_CORNERS',
+      'TWO_WAY_CORNERS',
+      'ASIAN_CORNERS',
+      'CORNERS_RACE'
+    ];
 
-    // Populate PRE_MATCH_MARKETS with the filtered data, but allow multiple entries for each market
-    for (const key of requiredMarkets) {
+    // Populate PRE_MATCH_MARKETS
+    for (const key of preMatchRequiredMarkets) {
       if (filteredPrematch[key]) {
         PRE_MATCH_MARKETS[key] = filteredPrematch[key];
       }
     }
 
+    // Populate LIVE_MARKETS
+    for (const key of liveRequiredMarkets) {
+      if (filteredLive[key]) {
+        LIVE_MARKETS[key] = filteredLive[key];
+      }
+    }
+
     res.json({
-      PRE_MATCH_MARKETS, // Return the filtered structure with only the required markets
+      PRE_MATCH_MARKETS,
+      LIVE_MARKETS
     });
   } catch (error) {
     console.error('Error fetching odds:', error.message);
