@@ -15,10 +15,14 @@ const extractMarketIdsByName = (sections, targetNames) => {
 
         for (const label of targetNames) {
           if (name.includes(label.toLowerCase()) && marketData?.id) {
-            foundIds[label.toUpperCase().replace(/ /g, '_')] = {
+            // Allow multiple entries for the same market name
+            if (!foundIds[label.toUpperCase().replace(/ /g, '_')]) {
+              foundIds[label.toUpperCase().replace(/ /g, '_')] = [];
+            }
+            foundIds[label.toUpperCase().replace(/ /g, '_')].push({
               id: marketData.id,
               name: marketData.name
-            };
+            });
           }
         }
       }
@@ -29,7 +33,6 @@ const extractMarketIdsByName = (sections, targetNames) => {
 };
 
 // Extract markets data by matching market IDs
-// Extract markets data by matching market IDs
 const extractMarketsByIds = (sections, targetIds) => {
   const foundMarkets = {};
 
@@ -39,14 +42,19 @@ const extractMarketsByIds = (sections, targetIds) => {
     for (const [marketName, marketData] of Object.entries(section.sp)) {
       if (marketData?.id) {
         const marketId = marketData.id.toString();  // Convert ID to string for comparison
-        for (const [label, targetData] of Object.entries(targetIds)) {
+        for (const [label, targetDataArray] of Object.entries(targetIds)) {
           // Compare market IDs as strings to handle both numeric and alphanumeric
-          if (marketId === targetData.id) {
-            foundMarkets[label] = {
-              id: marketData.id,
-              name: marketData.name,
-              odds: marketData.odds,
-            };
+          for (const targetData of targetDataArray) {
+            if (marketId === targetData.id) {
+              if (!foundMarkets[label]) {
+                foundMarkets[label] = [];
+              }
+              foundMarkets[label].push({
+                id: marketData.id,
+                name: marketData.name,
+                odds: marketData.odds,
+              });
+            }
           }
         }
       }
@@ -55,7 +63,6 @@ const extractMarketsByIds = (sections, targetIds) => {
 
   return foundMarkets;
 };
-
 
 exports.getOddsData = async (req, res) => {
   try {
@@ -89,14 +96,10 @@ exports.getOddsData = async (req, res) => {
     // Define only the keys you want to return (Full Time, Total Goals, Asian Handicap)
     const requiredMarkets = ['FULL_TIME', 'TOTAL_GOALS', 'ASIAN_HANDICAP'];
 
-    // Populate PRE_MATCH_MARKETS with the filtered data, but only for the required markets
+    // Populate PRE_MATCH_MARKETS with the filtered data, but allow multiple entries for each market
     for (const key of requiredMarkets) {
       if (filteredPrematch[key]) {
-        PRE_MATCH_MARKETS[key] = {
-          id: filteredPrematch[key].id,
-          name: filteredPrematch[key].name,
-          odds: filteredPrematch[key].odds,
-        };
+        PRE_MATCH_MARKETS[key] = filteredPrematch[key];
       }
     }
 
