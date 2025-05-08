@@ -1,35 +1,30 @@
-// market id target hai aur jo value hai id:value value section hai
+const axios = require('axios');
 
-
-
-const axios = require('axios'); // axios helps us get data from other websites using internet calls
-
-// This function looks for betting options (called markets) that match certain names
+// This function now extracts both market IDs and their odds
 const extractMarketIdsByName = (sections, targetNames) => {
-  const foundIds = {}; // We'll store matching market IDs here
+  const foundMarkets = {}; // Changed from foundIds to foundMarkets to store more data
 
-  // Go through each section of betting data (like goals, half-time, full-time)
   for (const section of Object.values(sections)) {
-    if (!section?.sp) continue; // If this section has no market data, skip it
+    if (!section?.sp) continue;
 
-    // Go through each individual betting option in this section
     for (const marketData of Object.values(section.sp)) {
       if (marketData?.name && marketData?.id) {
-        const name = marketData.name.toLowerCase(); // Make name lowercase to compare easily
+        const name = marketData.name.toLowerCase();
 
-        // Check if this market name matches any of our target names
         for (const label of targetNames) {
           if (name.includes(label.toLowerCase())) {
-            const labelKey = label.toUpperCase().replace(/ /g, '_'); // Format label nicely, e.g. "Full Time" → "FULL_TIME"
+            const labelKey = label.toUpperCase().replace(/ /g, '_');
 
-            // If we haven't created a section for this label yet, do it now
-            if (!foundIds[labelKey]) {
-              foundIds[labelKey] = {};
+            if (!foundMarkets[labelKey]) {
+              foundMarkets[labelKey] = {};
             }
 
-            // Add this market ID and name to our list (if not already added)
-            if (!foundIds[labelKey][marketData.id]) {
-              foundIds[labelKey][marketData.id] = marketData.name;
+            // Store both market info and odds if available
+            if (!foundMarkets[labelKey][marketData.id]) {
+              foundMarkets[labelKey][marketData.id] = {
+                name: marketData.name,
+                odds: marketData.odds || [] // Include odds array if it exists
+              };
             }
           }
         }
@@ -37,13 +32,13 @@ const extractMarketIdsByName = (sections, targetNames) => {
     }
   }
 
-  return foundIds; // Return all matching market IDs grouped by name label
+  return foundMarkets;
 };
 
-// This function picks only the market data we want, using the IDs we found earlier
-const extractMarketsByIds = (sections, targetIds) => {
+// Updated to handle odds data
+const extractMarketsByIds = (sections, targetMarkets) => {
   const foundMarkets = {};
-  const seenIds = new Set(); // Keeps track of IDs we've already added to avoid duplicates
+  const seenIds = new Set();
 
   for (const section of Object.values(sections)) {
     if (!section?.sp) continue;
@@ -52,39 +47,40 @@ const extractMarketsByIds = (sections, targetIds) => {
       if (marketData?.id) {
         const marketId = marketData.id.toString();
 
-        if (seenIds.has(marketId)) continue; // Skip if we already used this ID
+        if (seenIds.has(marketId)) continue;
 
-        for (const [label, idNameMap] of Object.entries(targetIds)) {
-          if (idNameMap[marketId]) {
+        for (const [label, idMarketMap] of Object.entries(targetMarkets)) {
+          if (idMarketMap[marketId]) {
             if (!foundMarkets[label]) {
               foundMarkets[label] = {};
             }
 
-            // Save the market under the correct label
-            foundMarkets[label][marketId] = marketData.name;
-            seenIds.add(marketId); // Mark as added
+            // Include both name and odds in the result
+            foundMarkets[label][marketId] = {
+              name: marketData.name,
+              odds: marketData.odds || []
+            };
+            seenIds.add(marketId);
           }
         }
       }
     }
   }
 
-  return foundMarkets; // Return only the filtered markets we care about
+  return foundMarkets;
 };
 
-// This function makes sure we return the markets in a consistent format, even if some are missing
 const organizeMarkets = (filteredMarkets, requiredMarkets) => {
   const organized = {};
 
   for (const key of requiredMarkets) {
-    // If we have data for this label, use it; otherwise use an empty object
     organized[key] = filteredMarkets[key] || {};
   }
 
   return organized;
 };
 
-// Main function that handles the web request to get odds data
+// Main function updated to handle odds data
 exports.getOddsData = async (req, res) => {
   try {
     const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
@@ -125,10 +121,27 @@ exports.getOddsData = async (req, res) => {
     const preMatchRequiredMarkets = Object.keys(dynamicPrematch);
     const PRE_MATCH_MARKETS = organizeMarkets(filteredPrematch, preMatchRequiredMarkets);
 
-    res.json({ PRE_MATCH_MARKETS });
+    // Format the response to include both market info and odds
+    const formattedResponse = {
+      PRE_MATCH_MARKETS: Object.entries(PRE_MATCH_MARKETS).reduce((acc, [marketType, markets]) => {
+        acc[marketType] = Object.entries(markets).map(([marketId, marketData]) => ({
+          id: marketId,
+          name: marketData.name,
+          odds: marketData.odds.map(odd => ({
+            id: odd.id,
+            odds: odd.odds,
+            header: odd.header || '',
+            name: odd.name || '',
+            handicap: odd.handicap || ''
+          }))
+        }));
+        return acc;
+      }, {})
+    };
+
+    res.json(formattedResponse);
   } catch (error) {
     console.error('Error fetching data:', error.message);
     res.status(500).json({ error: 'Failed to fetch data from Bet365 API' });
   }
 };
-
