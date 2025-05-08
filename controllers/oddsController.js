@@ -1,16 +1,5 @@
 const axios = require('axios');
 
-// Utility to deduplicate odds by ID
-const deduplicateOdds = (oddsArray) => {
-  const seen = new Set();
-  return oddsArray.filter(odd => {
-    if (!odd?.id || seen.has(odd.id)) return false;
-    seen.add(odd.id);
-    return true;
-  });
-};
-
-// Main processing function
 exports.getOddsData = async (req, res) => {
   try {
     const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
@@ -24,60 +13,63 @@ exports.getOddsData = async (req, res) => {
           .join('&')
     });
 
-    // Object to hold consolidated markets across all events
+    const firstEvent = response.data.results?.[0]; //  Only first FI data
+    if (!firstEvent) return res.status(404).json({ error: 'No events found' });
+
     const consolidatedMarkets = {};
+    const allSections = {
+      asian_lines: firstEvent.asian_lines,
+      goals: firstEvent.goals,
+      main: firstEvent.main,
+      half: firstEvent.half,
+      others: firstEvent.others,
+      minutes: firstEvent.minutes,
+      specials: firstEvent.specials
+    };
 
-    for (const event of response.data.results) {
-      const allSections = {
-        asian_lines: event.asian_lines,
-        goals: event.goals,
-        main: event.main,
-        half: event.half,
-        others: event.others,
-        minutes: event.minutes,
-        specials: event.specials
-      };
+    for (const section of Object.values(allSections)) {
+      if (!section?.sp) continue;
 
-      // Process each section and market
-      for (const section of Object.values(allSections)) {
-        if (!section?.sp) continue;
-        
-        for (const marketData of Object.values(section.sp)) {
-          if (!marketData?.id || !marketData?.name) continue;
-          
-          const marketId = marketData.id.toString();
-          const marketName = marketData.name;
-          const marketKey = `${marketId}_${marketName}`;
-          
-          // Initialize market if not exists
-          if (!consolidatedMarkets[marketKey]) {
-            consolidatedMarkets[marketKey] = {
-              id: marketId,
-              name: marketName,
-              odds: []
-            };
-          }
-          
-          // Add new odds (deduplicated)
-          if (marketData.odds && marketData.odds.length) {
-            const newOdds = marketData.odds.map(odd => ({
-              id: odd.id,
-              odds: odd.odds,
-              header: odd.header || '',
-              name: odd.name || '',
-              handicap: odd.handicap || ''
-            }));
-            
-            consolidatedMarkets[marketKey].odds = deduplicateOdds([
-              ...consolidatedMarkets[marketKey].odds,
-              ...newOdds
-            ]);
-          }
+      for (const marketData of Object.values(section.sp)) {
+        if (!marketData?.id || !marketData?.name) continue;
+
+        const marketId = marketData.id.toString();
+        const marketName = marketData.name;
+        const marketKey = `${marketId}_${marketName}`;
+
+        if (!consolidatedMarkets[marketKey]) {
+          consolidatedMarkets[marketKey] = {
+            id: marketId,
+            name: marketName,
+            odds: []
+          };
+        }
+
+        if (marketData.odds && marketData.odds.length) {
+          const newOdds = marketData.odds.map(odd => ({
+            id: odd.id,
+            odds: odd.odds,
+            header: odd.header,
+            name: odd.name ,
+            handicap: odd.handicap 
+          }));
+
+          //  Keep all odds instead of only the first
+          consolidatedMarkets[marketKey].odds.push(...newOdds);
         }
       }
     }
 
-    // Group by market type (you may need to adjust this based on your categorization needs)
+    // Optional: Deduplicate odds within each market if needed
+    for (const market of Object.values(consolidatedMarkets)) {
+      const seen = new Set();
+      market.odds = market.odds.filter(odd => {
+        if (!odd.id || seen.has(odd.id)) return false;
+        seen.add(odd.id);
+        return true;
+      });
+    }
+
     const result = {
       PRE_MATCH_MARKETS: Object.values(consolidatedMarkets)
     };
