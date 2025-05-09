@@ -1,5 +1,5 @@
 
-// controllers\PreMatchodds.js
+// controllers\PreMatchFootball.js
 const axios = require('axios');
 
 exports.getOddsData1 = async (req, res) => {
@@ -21,8 +21,8 @@ exports.getOddsData1 = async (req, res) => {
       return res.status(404).json({ error: 'No events found' });
     }
 
-    const marketsMap = {};
-    const seenMarketIds = new Set();
+    const consolidatedMarkets = {};
+    const oddsSet = new Set();
 
     // Process FIs in priority order
     for (const fi of targetFIs) {
@@ -41,36 +41,32 @@ exports.getOddsData1 = async (req, res) => {
       ];
 
       for (const section of sections) {
-        if (!section || !section.sp) continue;
-        
-        for (const [_, marketData] of Object.entries(section.sp)) {
-          if (!marketData) continue;
-          
-          // Handle nested market structures
-          if (marketData.id && marketData.name) {
-            addMarketToMap(marketData, marketsMap, seenMarketIds);
-          } else if (typeof marketData === 'object') {
-            for (const [_, subMarketData] of Object.entries(marketData)) {
-              if (subMarketData?.id && subMarketData?.name) {
-                addMarketToMap(subMarketData, marketsMap, seenMarketIds);
-              }
-            }
-          }
-        }
+        processSectionWithPriority(section, consolidatedMarkets, fi, oddsSet);
       }
     }
 
-    // Convert to the desired output format
-    const formattedMarkets = {};
-    for (const [marketKey, marketId] of Object.entries(marketsMap)) {
-      formattedMarkets[marketKey] = marketId;
+    // Deduplicate odds by ID
+    for (const market of Object.values(consolidatedMarkets)) {
+      const seen = new Set();
+      market.odds = market.odds.filter(odd => {
+        if (!odd.id || seen.has(odd.id)) return false;
+        seen.add(odd.id);
+        return true;
+      });
     }
 
-    res.json({
-      markets: formattedMarkets,
-      total_markets: Object.keys(formattedMarkets).length
-    });
+    // Transform into the desired format
+    const sportsData = {
+      id: 1,
+      name: "Football",
+      count: Object.keys(consolidatedMarkets).length,
+      markets: Object.values(consolidatedMarkets).map(market => ({
+        id: market.id,
+        name: market.name
+      }))
+    };
 
+    res.json([sportsData]);
   } catch (error) {
     console.error('Error fetching data:', error.message);
     res.status(500).json({ 
@@ -80,17 +76,47 @@ exports.getOddsData1 = async (req, res) => {
   }
 };
 
-function addMarketToMap(marketData, marketsMap, seenMarketIds) {
-  const marketId = marketData.id.toString();
-  const marketName = marketData.name;
-  
-  // Skip if we've already processed this market ID
-  if (seenMarketIds.has(marketId)) return;
-  
-  // Add to map (using name as key and ID as value)
-  if (marketName && marketId) {
-    marketsMap[marketName] = marketId;
-    seenMarketIds.add(marketId);
+function processSectionWithPriority(sectionData, consolidatedMarkets, fi, oddsSet) {
+  if (!sectionData || !sectionData.sp) return;
+
+  for (const [marketKey, marketData] of Object.entries(sectionData.sp)) {
+    if (!marketData || typeof marketData !== 'object') continue;
+
+    if (marketData.id && marketData.name) {
+      mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet);
+    } else {
+      for (const [_, subMarketData] of Object.entries(marketData)) {
+        if (subMarketData?.id && subMarketData?.name) {
+          mergeMarketWithOddsPriority(subMarketData, consolidatedMarkets, oddsSet);
+        }
+      }
+    }
   }
 }
 
+function mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet) {
+  const marketId = marketData.id.toString();
+  const marketName = marketData.name;
+  const marketKey = `${marketId}_${marketName}`;
+
+  // Create market entry if it doesn't exist
+  if (!consolidatedMarkets[marketKey]) {
+    consolidatedMarkets[marketKey] = {
+      id: marketId,
+      name: marketName,
+      odds: []
+    };
+  }
+
+  // Add odds only if none added before and current has odds
+  if (consolidatedMarkets[marketKey].odds.length === 0 && Array.isArray(marketData.odds) && marketData.odds.length > 0) {
+    const odds = marketData.odds.map(odd => ({
+      id: odd.id,
+      odds: odd.odds,
+      header: odd.header,
+      name: odd.name,
+      handicap: odd.handicap 
+    }));
+    consolidatedMarkets[marketKey].odds.push(...odds);
+  }
+}
