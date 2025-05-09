@@ -1,93 +1,127 @@
 const axios = require('axios');
 
-// Function to fetch and process betting odds data from Bet365 API
-exports.getOddsData = async (req, res) => {
-  try {
-    // Make a request to the Bet365 API to get betting data for specific matches
-    const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
-      params: {
-        token: '72339-5QJh8lscw8VTIY',  // Bet365 API token
-        FI: ['174229112', '174187790', '174277015', '174277029', '173834534', '173889244'].join(',')  // List of match IDs
-      }
-    });
+// Extract market IDs by name
+const extractMarketIdsByName = (sections, targetNames) => {
+  const foundIds = {};
 
-    // Extract the first and second events from the response data
-    const firstEvent = response.data.results?.[0];
-    const secondEvent = response.data.results?.[1];
-    
-    // If the first event does not exist, return a 404 response with an error message
-    if (!firstEvent) return res.status(404).json({ error: 'No events found' });
+  for (const section of Object.values(sections)) {
+    if (!section?.sp) continue;
 
-    // Initialize an object to store consolidated betting market data
-    const consolidatedMarkets = {};
+    for (const marketData of Object.values(section.sp)) {
+      if (marketData?.name && marketData?.id) {
+        const name = marketData.name.toLowerCase();
 
-    // Iterate through the sections in the first event and collect betting odds
-    for (const sectionName of Object.keys(firstEvent)) {
-      const section = firstEvent[sectionName];
-      
-      // If the section doesn't contain odds data, skip it
-      if (!section?.sp) continue;
+        for (const label of targetNames) {
+          if (name.includes(label.toLowerCase())) {
+            const labelKey = label.toUpperCase().replace(/ /g, '_');
 
-      // Iterate through the market data within each section
-      for (const marketData of Object.values(section.sp)) {
-        // Skip market data without an ID or name
-        if (!marketData?.id || !marketData?.name) continue;
+            if (!foundIds[labelKey]) {
+              foundIds[labelKey] = {};
+            }
 
-        // Construct a unique key for each market using market ID and name
-        const marketId = marketData.id.toString();
-        const marketName = marketData.name;
-        const marketKey = `${marketId}_${marketName}`;
-
-        // If this market has not been added yet, initialize it in the consolidatedMarkets object
-        if (!consolidatedMarkets[marketKey]) {
-          consolidatedMarkets[marketKey] = { id: marketId, name: marketName, odds: [] };
-        }
-
-        // Get the odds for the current market from the first event
-        let odds = marketData.odds;
-
-        // If the odds are empty, check the second event for the same market and use its odds if available
-        if (odds.length === 0) {
-          const secondMarketData = Object.values(secondEvent?.[sectionName]?.sp || {}).find(market => market.name === marketName);
-          odds = secondMarketData?.odds || [];
-        }
-
-        // If odds are available, add them to the consolidatedMarkets object
-        if (odds.length) {
-          const newOdds = odds.map(odd => ({
-            id: odd.id,  // Unique identifier for the odd
-            odds: odd.odds,  // Betting odds value
-            header: odd.header,  // Header/label for the odd
-            name: odd.name,  // Name of the odd
-            handicap: odd.handicap  // Handicap value (if any)
-          }));
-
-          // Push the new odds to the corresponding market's odds array
-          consolidatedMarkets[marketKey].odds.push(...newOdds);
+            if (!foundIds[labelKey][marketData.id]) {
+              foundIds[labelKey][marketData.id] = marketData.name;
+            }
+          }
         }
       }
     }
+  }
 
-    // Remove duplicate odds by filtering them using a Set to track unique IDs
-    // for (const market of Object.values(consolidatedMarkets)) {
-    //   const seen = new Set();
-    //   market.odds = market.odds.filter(odd => {
-    //     // If the odd has no ID or it has already been seen, remove it
-    //     if (!odd.id || seen.has(odd.id)) return false;
-    //     seen.add(odd.id);
-    //     return true;
-    //   });
-    // }
+  return foundIds;
+};
 
-    // Prepare the final result with the consolidated betting markets
-    const result = { PRE_MATCH_MARKETS: Object.values(consolidatedMarkets) };
+// Filter markets by ID
+const extractMarketsByIds = (sections, targetIds) => {
+  const foundMarkets = {};
+  const seenIds = new Set();
 
-    // Send the result as the response
-    res.json([result]);
+  for (const section of Object.values(sections)) {
+    if (!section?.sp) continue;
 
+    for (const marketData of Object.values(section.sp)) {
+      if (marketData?.id) {
+        const marketId = marketData.id.toString();
+
+        if (seenIds.has(marketId)) continue;
+
+        for (const [label, idNameMap] of Object.entries(targetIds)) {
+          if (idNameMap[marketId]) {
+            if (!foundMarkets[label]) {
+              foundMarkets[label] = {};
+            }
+
+            foundMarkets[label][marketId] = marketData.name;
+            seenIds.add(marketId);
+          }
+        }
+      }
+    }
+  }
+
+  return foundMarkets;
+};
+
+// Organize into required structure
+const organizeMarkets = (filteredMarkets, requiredMarkets) => {
+  const organized = {};
+
+  for (const key of requiredMarkets) {
+    organized[key] = filteredMarkets[key] || {};
+  }
+
+  return organized;
+};
+
+exports.getOddsData = async (req, res) => {
+  try {
+    const response = await axios.get('https://betsapi.com/docs/samples/bet365_prematch_odds.json');
+    const event = response.data.results[0];
+
+    const allSections = {
+      asian_lines: event.asian_lines,
+      goals: event.goals,
+      main: event.main,
+      half: event.half,
+      others: event.others,
+      minutes: event.minutes,
+      specials: event.specials
+    };
+
+    // Create a flat name-to-id mapping
+    const createFlatMarketMapping = (sections) => {
+      const flatMap = {};
+      const seenNames = new Set();
+      let totalMarkets = 0;
+
+      for (const section of Object.values(sections)) {
+        if (!section?.sp) continue;
+
+        for (const marketData of Object.values(section.sp)) {
+          if (marketData?.name && marketData?.id) {
+            const name = marketData.name.trim();
+            
+            // Only add if we haven't seen this exact name before
+            if (!seenNames.has(name)) {
+              flatMap[name] = marketData.id.toString();
+              seenNames.add(name);
+              totalMarkets++;
+            }
+          }
+        }
+      }
+
+      return {
+        markets: flatMap,
+        total_markets: totalMarkets
+      };
+    };
+
+    const marketData = createFlatMarketMapping(allSections);
+
+    res.json(marketData);
   } catch (error) {
-    // Handle any errors during the API call or processing
     console.error('Error fetching data:', error.message);
-    res.status(500).json({ error: 'Failed to fetch data from Bet365 API' });
+    res.status(500).json({ error: 'Failed to fetch data' });
   }
 };
