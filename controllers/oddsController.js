@@ -2,7 +2,7 @@ const axios = require('axios');
 
 exports.getOddsData = async (req, res) => {
   try {
-    const targetFIs = ['174229112', '174187790', '174277015'];
+    const targetFIs = ['174229112', '174187790', '174277015','173889141', '174217277', '173889464'];
 
     const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
       params: {
@@ -34,6 +34,7 @@ exports.getOddsData = async (req, res) => {
         event.half,
         event.minutes,
         event.specials,
+        event.corners,
         ...(Array.isArray(event.others) ? event.others : [])
       ];
 
@@ -99,9 +100,9 @@ function mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet) {
     const odds = marketData.odds.map(odd => ({
       id: odd.id,
       odds: odd.odds,
-      header: odd.header || '',
-      name: odd.name || '',
-      handicap: odd.handicap || ''
+      header: odd.header ,
+      name: odd.name ,
+      handicap: odd.handicap 
     }));
     consolidatedMarkets[marketKey].odds.push(...odds);
   }
