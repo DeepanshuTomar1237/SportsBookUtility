@@ -5,6 +5,7 @@ const { getOddsData } = require('../controllers/PreMatchFootball');
 const { getOddsData1 } = require('../controllers/PreMatchodds');
 const { getOddsData2 } = require('../controllers/LiveMatchFootball');
 const { getOddsData4 } = require('../controllers/PreMatchTennis');
+const { getOddsData5 } = require('../controllers/Tennis/PreMatchOdds');
 
 
 // Route for PreMatchFootball
@@ -17,6 +18,8 @@ router.get('/football/pre-match/market/list', getOddsData1);
 router.get('/livematch', getOddsData2);
 
 router.get('/Tennis/pre-match/market/list', getOddsData4);
+
+router.get('/Tennis/pre-match/market/odds', getOddsData5)
 
 module.exports = router;
 // /football/live-match/market/list
