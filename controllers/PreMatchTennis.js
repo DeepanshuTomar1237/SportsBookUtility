@@ -2,9 +2,9 @@
 // controllers\PreMatchFootball.js
 const axios = require('axios');
 
-exports.getOddsData1 = async (req, res) => {
+exports.getOddsData4 = async (req, res) => {
   try {
-    const targetFIs = ['174229112', '174187790', '174277015','173889141', '174217277', '173889464','174408256'];
+    const targetFIs = ['174515827', '174515829','174520444','174465670', '174505725', '174508102', '174508104', '174512203', '174512207'];
 
     const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
       params: {
@@ -57,8 +57,8 @@ exports.getOddsData1 = async (req, res) => {
 
     // Transform into the desired format
     const sportsData = {
-      id: 1,
-      name: "Football",
+      id: 13,
+      name: "Tennis",
       count: Object.keys(consolidatedMarkets).length,
       markets: Object.values(consolidatedMarkets).map(market => ({
         id: market.id,

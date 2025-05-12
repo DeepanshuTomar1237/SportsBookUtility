@@ -4,17 +4,17 @@ const axios = require('axios');
 const API_BASE_URL = 'https://jarlon.onlinegamblingtech.com/api/v1';
 
 const DEFAULT_EVENT_IDS = [
-  '173882661', '174342210', '173888902', '173888999', '173888838', '173888840',
-  '174217275', '174361672', '173889376', '173889363', '173889462',
-  '173889464', '173889175', '174217279', '173889404', '173889406', '174298126', '174217277','173889310','174294603', '174234032', '174234027', '174236822', '174188190', '174239771'
+  '174404876','174409475','174539248','174539246','174409479', 
+  '174503672', '174408256', '174408252', '174408258', '174414556', 
+  '174409483', '174414565', '174539250'
 ];
 
 exports.getOddsData2 = async (req, res) => {
   const eventIds = req.query.evIds
-    ? [...new Set(req.query.evIds.split(','))] // remove duplicates
+    ? [...new Set(req.query.evIds.split(','))]
     : DEFAULT_EVENT_IDS;
 
-  const allMarkets = {};
+  const marketMap = new Map(); // Using Map to avoid duplicates
 
   try {
     const fetchMarketData = async (eventId) => {
@@ -24,10 +24,25 @@ exports.getOddsData2 = async (req, res) => {
         });
 
         const markets = response.data?.eventData?.markets;
+
         if (response.data?.success && Array.isArray(markets)) {
           markets.forEach((market) => {
-            if (market.market && market.name && !allMarkets[market.name]) {
-              allMarkets[market.name] = market.market;
+            if (market.name) {
+              // First try to get market ID from root level
+              let marketId = market.market;
+              
+              // If not found at root level, check first odds item
+              if (!marketId && market.Odds && market.Odds.length > 0) {
+                marketId = market.Odds[0].market;
+              }
+              
+              // If still no ID found, use a default
+              marketId = marketId || '1778';
+              
+              // Store in Map to avoid duplicates (name as key, id as value)
+              if (!marketMap.has(market.name)) {
+                marketMap.set(market.name, marketId);
+              }
             }
           });
         }
@@ -38,10 +53,18 @@ exports.getOddsData2 = async (req, res) => {
 
     await Promise.all(eventIds.map(fetchMarketData));
 
-    res.json({
-      markets: allMarkets,
-      total_markets: Object.keys(allMarkets).length
-    });
+    // Convert the Map to the desired output format
+    const result = [{
+      id: 1,
+      name: "Football",
+      count: marketMap.size,
+      markets: Array.from(marketMap).map(([name, id]) => ({
+        id: id,
+        name: name
+      }))
+    }];
+
+    res.json(result);
 
   } catch (error) {
     console.error('Critical Error:', {
