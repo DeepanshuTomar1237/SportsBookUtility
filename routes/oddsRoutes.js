@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { getOddsData } = require('../controllers/PreMatchFootball');
-const { getOddsData1 } = require('../controllers/PreMatchodds');
-const { getOddsData2 } = require('../controllers/LiveMatchFootball');
-const { getOddsData4 } = require('../controllers/PreMatchTennis');
+const { getOddsData } = require('../controllers/Football/PreMatchFootball');
+const { getOddsData1 } = require('../controllers/Football/PreMatchodds');
+const { getOddsData2 } = require('../controllers/Football/LiveMatchFootball');
+const { getOddsData4 } = require('../controllers/Tennis/PreMatchTennis');
 const { getOddsData5 } = require('../controllers/Tennis/PreMatchOdds');
 const { getOddsData6 } = require('../controllers/Tennis/LiveMatchMarket');
 
