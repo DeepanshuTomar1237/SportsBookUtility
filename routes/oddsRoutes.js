@@ -1,29 +1,22 @@
 const express = require('express');
 const router = express.Router();
 
-const { getOddsData } = require('../controllers/Football/PreMatchFootball');
-const { getOddsData1 } = require('../controllers/Football/PreMatchodds');
-const { getOddsData2 } = require('../controllers/Football/LiveMatchFootball');
-const { getOddsData4 } = require('../controllers/Tennis/PreMatchTennis');
-const { getOddsData5 } = require('../controllers/Tennis/PreMatchOdds');
-const { getOddsData6 } = require('../controllers/Tennis/LiveMatchMarket');
+// Import all controller functions
+const { PreMatchMarket } = require('../controllers/Football/PreMatchMarket');
+const { PreMatchoods } = require('../controllers/Football/PreMatchodds');
+const { LiveMatchMarket } = require('../controllers/Football/LiveMatchMarket');
+const { TennisPreMatchMarket } = require('../controllers/Tennis/PreMatchMarket');
+const { TennisPreMatchoods } = require('../controllers/Tennis/PreMatchOdds');
+const { TennisLiveMatchMarket } = require('../controllers/Tennis/LiveMatchMarket');
 
+// Football Routes
+router.get('/football/pre-match/market/odds', PreMatchMarket);
+router.get('/football/pre-match/market/list', PreMatchoods);
+router.get('/football/live-match/market/list', LiveMatchMarket);
 
-// Route for PreMatchFootball
-router.get('/football/pre-match/market/odds', getOddsData);
-
-// Route for PreMatchodds
-router.get('/football/pre-match/market/list', getOddsData1);
-
-// Route for LiveMatchFootball
-router.get('/livematch', getOddsData2);
-
-router.get('/Tennis/pre-match/market/list', getOddsData4);
-
-router.get('/Tennis/pre-match/market/odds', getOddsData5)
-
-router.get('/Tennis/live-match/market/odds', getOddsData6)
+// Tennis Routes
+router.get('/tennis/pre-match/market/list', TennisPreMatchMarket);
+router.get('/tennis/pre-match/market/odds', TennisPreMatchoods);
+router.get('/tennis/live-match/market/odds', TennisLiveMatchMarket);
 
 module.exports = router;
-// /football/live-match/market/list
- 

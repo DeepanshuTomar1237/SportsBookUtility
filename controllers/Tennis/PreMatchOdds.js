@@ -3,7 +3,7 @@
 // controllers\PreMatchFootball.js
 const axios = require('axios');
 
-exports.getOddsData5 = async (req, res) => {
+exports.TennisPreMatchoods = async (req, res) => {
   try {
     const targetFIs = ['174515827', '174515829','174520444','174465670', '174505725', '174508102', '174508104', '174512203', '174512207'];
 

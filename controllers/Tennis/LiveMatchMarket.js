@@ -54,7 +54,7 @@ const DEFAULT_EVENT_IDS = [
     "174519710"
   ];
 
-exports.getOddsData6 = async (req, res) => {
+exports.TennisLiveMatchMarket = async (req, res) => {
   const eventIds = req.query.evIds
     ? [...new Set(req.query.evIds.split(','))]
     : DEFAULT_EVENT_IDS;
