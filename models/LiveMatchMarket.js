@@ -15,16 +15,7 @@ const marketSchema = new mongoose.Schema({
 
 // Define the main football market schema
 const footballMarketSchema = new mongoose.Schema({
-  sportId: {
-    type: Number,
-    required: true,
-    default: 1
-  },
-  name: {
-    type: String,
-    required: true,
-    default: "Football"
-  },
+
   count: {
     type: Number,
     required: true
@@ -33,14 +24,8 @@ const footballMarketSchema = new mongoose.Schema({
     type: [marketSchema],
     required: true
   },
-  lastUpdated: {
-    type: Date,
-    default: Date.now
-  },
-  eventIds: {
-    type: [String],
-    required: true
-  },
+ 
+ 
   marketKey: {
     type: String,
     required: true,
@@ -51,7 +36,7 @@ const footballMarketSchema = new mongoose.Schema({
 
 // Indexes
 footballMarketSchema.index({ sportId: 1 });
-footballMarketSchema.index({ lastUpdated: -1 });
+// footballMarketSchema.index({ lastUpdated: -1 });
 footballMarketSchema.index({ eventIds: 1 });
 footballMarketSchema.index({ marketKey: 1 }, { unique: true }); //  index for upsert
 

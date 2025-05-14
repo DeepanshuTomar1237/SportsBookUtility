@@ -39,7 +39,7 @@ exports.PreMatchOdds = async (req, res) => {
     const response = {
       PRE_MATCH_MARKETS: result.PRE_MATCH_MARKETS,
       total_markets: result.total_markets,
-      timestamp: result.timestamp
+      // timestamp: result.timestamp
     };
 
     res.json([response]);
