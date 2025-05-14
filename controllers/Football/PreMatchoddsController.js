@@ -1,40 +1,32 @@
-// controllers\Football\PreMatchodds.js
-const axios = require('axios');
+const { fetchBet365Data } = require('../../utils/api');
+const { processMarkets } = require('../../utils/marketProcessor');
+const { formatSportsData } = require('../../utils/dataFormatter');
 const PreMatchOdds = require('../../models/PreMatchOdds');
 require('dotenv').config();
 
 const TARGET_FIS = [
   '174229112', '174187790', '174277015',
-  '173889141', '174217277', '173889464'
+  '173889141', '174217277', '173889464',
 ];
 
-exports.PreMatchoods = async (req, res) => {
+exports.PreMatchOdds = async (req, res) => {
   try {
-    const response = await axios.get(process.env.BET365_API_URL, {
-      params: {
-        token: process.env.BET365_API_TOKEN,
-        FI: TARGET_FIS.join(',')
-      },
-      timeout: 10000,
-      paramsSerializer: params =>
-        Object.entries(params)
-          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-          .join('&')
-    });
+    // Fetch data from Bet365 API
+    const data = await fetchBet365Data(TARGET_FIS);
 
-    if (!response.data?.results?.length) {
+    if (!data?.results?.length) {
       return res.status(404).json({
         error: 'No events found',
-        request: { FIs: TARGET_FIS }
+        request: { FIs: TARGET_FIS },
       });
     }
 
     const consolidatedMarkets = {};
     const oddsSet = new Set();
 
-    // Process in priority order
+    // Process the event data received from the API
     for (const fi of TARGET_FIS) {
-      const event = response.data.results.find(ev => ev.FI?.toString() === fi);
+      const event = data.results.find(ev => ev.FI?.toString() === fi);
       if (!event) continue;
 
       const sections = [
@@ -45,11 +37,13 @@ exports.PreMatchoods = async (req, res) => {
         event.minutes,
         event.specials,
         event.corners,
-        ...(Array.isArray(event.others) ? event.others : [])
+        ...(Array.isArray(event.others) ? event.others : []),
       ];
 
       for (const section of sections) {
-        processSectionWithPriority(section, consolidatedMarkets, oddsSet);
+        if (section?.sp) {
+          processSectionWithPriority(section.sp, consolidatedMarkets, oddsSet);
+        }
       }
     }
 
@@ -69,39 +63,31 @@ exports.PreMatchoods = async (req, res) => {
     // Format data to match desired structure
     const dataToStore = {
       PRE_MATCH_MARKETS: finalMarkets,
-      total_markets: totalMarkets
+      total_markets: totalMarkets,
     };
 
     // Save to MongoDB
     const document = new PreMatchOdds(dataToStore);
     const saved = await document.save();
-    
-    console.log(` Data inserted with _id: ${saved._id}`);
+    console.log(`Data inserted with _id: ${saved._id}`);
 
     // Return response in array format as shown in example
     res.json([dataToStore]);
 
   } catch (error) {
-    console.error('⚠️ API Error:', {
-      message: error.message,
-      url: error.config?.url,
-      status: error.response?.status
-    });
-
+    console.error('⚠️ API Error:', error.message);
     res.status(500).json({
       error: 'Failed to fetch or store data',
-      ...(process.env.NODE_ENV === 'development' && {
-        details: error.message,
-        stack: error.stack
-      })
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 };
 
 function processSectionWithPriority(sectionData, consolidatedMarkets, oddsSet) {
-  if (!sectionData?.sp) return;
+  if (!sectionData) return;
 
-  for (const marketGroup of Object.values(sectionData.sp)) {
+  for (const marketGroup of Object.values(sectionData)) {
     if (!marketGroup) continue;
 
     if (marketGroup.id && marketGroup.name) {
@@ -125,7 +111,7 @@ function mergeMarket(marketData, consolidatedMarkets, oddsSet) {
     consolidatedMarkets[marketKey] = {
       id: marketId,
       name: marketName,
-      odds: []
+      odds: [],
     };
   }
 
@@ -139,7 +125,7 @@ function mergeMarket(marketData, consolidatedMarkets, oddsSet) {
       odds: odd.odds.toString(), // Ensure odds are stored as strings
       header: odd.header || null,
       name: odd.name || null,
-      handicap: odd.handicap || null
+      handicap: odd.handicap || null,
     }));
     consolidatedMarkets[marketKey].odds.push(...odds);
   }
