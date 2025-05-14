@@ -1,49 +1,71 @@
+// Import necessary tools and configuration:
+// - Bet365 API fetcher, market processor, data formatter
+// - Database model for pre-match markets
+// - Default football competitions to track
+// - Environment variables (secret keys/config)
 const { fetchBet365Data } = require('../../utils/api');
 const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
 const { formatSportsData } = require('../../utils/dataFormatter');
 const PreMatchMarket = require('../../models/PreMatchMarket');
+const { TARGET_FIS } = require('../../constants/bookmakers');
 require('dotenv').config();
 
-const TARGET_FIS = [
-  '174229112', '174187790', '174277015',
-  '173889141', '174217277', '173889464',
-  '174408256',
-];
-
+// Main function to handle pre-match market data
 exports.PreMatchMarket = async (req, res) => {
   try {
-    // Fetch data from Bet365 API
+    // STEP 1: Fetch data from Bet365 API
+    // Uses our predefined list of important football competitions (TARGET_FIS)
     const data = await fetchBet365Data(TARGET_FIS);
 
-    if (!data?.results || data.results.length === 0) {
-      return res.status(404).json({
+    // STEP 2: Check if we got any matches back
+    if (!data?.results?.length) {
+      return res.status(404).json({ // Return "Not Found" response if no matches
         error: 'No events found',
-        request: { FIs: TARGET_FIS, timestamp: new Date().toISOString() },
+        request: { 
+          FIs: TARGET_FIS, // Show which competitions we asked for
+          // timestamp: new Date().toISOString() // Include current time
+        },
       });
     }
 
-    // Process the event data received from the API
+    // STEP 3: Process the raw betting market data
+    // Takes the API results and organizes them into a standard format
     const consolidatedMarkets = processMarkets(data.results, TARGET_FIS);
 
-    // Format the data into a user-friendly format
+    // STEP 4: Format for our database and frontend
+    // Structures the data with consistent naming and organization
     const sportsData = formatSportsData(consolidatedMarkets);
 
-    // Save or update the sports data in the database
+    // STEP 5: Save to database
+    // Updates existing record or creates new one if needed ("upsert")
     await PreMatchMarket.findOneAndUpdate(
-      { id: sportsData.id },
-      sportsData,
-      { upsert: true, new: true }
+      { id: sportsData.id }, // Find by competition ID
+      sportsData, // New data to save
+      { upsert: true, new: true } // Options: create if missing, return updated version
     );
 
-    // Return the processed data
+    // STEP 6: Send formatted data back to client
+    // Wrapped in array for consistency with other endpoints
     res.json([sportsData]);
 
   } catch (error) {
+    // ERROR HANDLING: If anything fails in the try block
+    
+    // 1. Log technical details for developers
     console.error('API Error:', error.message);
-    res.status(500).json({
-      error: 'Failed to fetch data from Bet365 API',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-    });
+
+    // 2. Prepare error response
+    const response = {
+      error: 'Failed to fetch data from Bet365 API' // User-friendly message
+    };
+
+    // 3. Add debugging details if in development mode
+    if (process.env.NODE_ENV === 'development') {
+      response.details = error.message; // Specific error
+      response.stack = error.stack; // Where in code it failed
+    }
+
+    // 4. Send error response with 500 status (server error)
+    res.status(500).json(response);
   }
 };

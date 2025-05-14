@@ -1,3 +1,4 @@
+// market-processors/Football/LiveMatchMarketProcessor.js
 const axios = require('axios');
 require('dotenv').config();
 
@@ -6,17 +7,10 @@ if (!API_BASE_URL) {
   throw new Error('API_BASE_URL is not defined in environment variables');
 }
 
-const DEFAULT_EVENT_IDS = [
-  '174503327', '174454680', '174454688','174454684','174507949','174507951',
-  '173889257','174586714','174454691','174566908','174454340','174507694',
-  '174507707','174504434','174503897','174548838','174503894'
-];
-
 const fetchMarketData = async (eventId, marketMap) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/event`, {
-      params: { evId: eventId },
-      timeout: 5000
+      params: { evId: eventId }
     });
 
     if (!response.data?.success) {
@@ -30,8 +24,7 @@ const fetchMarketData = async (eventId, marketMap) => {
       if (!market?.name) return;
 
       let marketId = market.market ||
-                    (market.Odds?.[0]?.market) ||
-                    '1778'; // Fallback market ID
+                    (market.Odds?.[0]?.market) 
 
       if (!marketMap.has(market.name)) {
         marketMap.set(market.name, marketId);
@@ -43,11 +36,7 @@ const fetchMarketData = async (eventId, marketMap) => {
   }
 };
 
-const processLiveMatchMarket = async (customEventIds) => {
-  const eventIds = customEventIds?.length
-    ? [...new Set(customEventIds)]
-    : DEFAULT_EVENT_IDS;
-
+const processLiveMatchMarket = async (eventIds) => {
   const marketMap = new Map();
 
   await Promise.all(eventIds.map((id) => fetchMarketData(id, marketMap)));
