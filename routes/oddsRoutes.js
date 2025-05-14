@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Import all controller functions
 const { PreMatchMarket } = require('../controllers/Football/PreMatchmarketController');
-const { PreMatchOdds } = require('../controllers/Football/PreMatchoddsController');
+const { PreMatchOdds } = require('../controllers/Football/PreMatchOddsController');
 const { LiveMatchMarket } = require('../controllers/Football/LiveMatchMarket');
 const { TennisPreMatchMarket } = require('../controllers/Tennis/PreMatchMarket');
 const { TennisPreMatchoods } = require('../controllers/Tennis/PreMatchOdds');

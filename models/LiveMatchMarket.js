@@ -1,4 +1,4 @@
-// models/FootballMarket.js
+// models\LiveMatchMarket.js
 const mongoose = require('mongoose');
 
 // Define the market subdocument schema
@@ -18,7 +18,7 @@ const footballMarketSchema = new mongoose.Schema({
   sportId: {
     type: Number,
     required: true,
-    default: 1 // Default to football ID
+    default: 1
   },
   name: {
     type: String,
@@ -37,19 +37,24 @@ const footballMarketSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  // Reference to the event IDs used to generate this data
   eventIds: {
     type: [String],
     required: true
+  },
+  marketKey: {
+    type: String,
+    required: true,
+    unique: true,
+    select: false // This will exclude the field from query results
   }
-});
+}, { versionKey: false }); // This removes the __v field
 
-// Add indexes for better query performance
+// Indexes
 footballMarketSchema.index({ sportId: 1 });
 footballMarketSchema.index({ lastUpdated: -1 });
 footballMarketSchema.index({ eventIds: 1 });
+footballMarketSchema.index({ marketKey: 1 }, { unique: true }); //  index for upsert
 
-// Create the model
 const FootballMarket = mongoose.model('LiveMatchmarket', footballMarketSchema);
 
 module.exports = FootballMarket;
