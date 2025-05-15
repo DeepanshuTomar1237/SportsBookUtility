@@ -5,9 +5,9 @@ const router = express.Router();
 const { PreMatchMarket } = require('../controllers/Football/PreMatchmarketController');
 const { PreMatchOdds } = require('../controllers/Football/PreMatchOddsController');
 const { LiveMatchMarket } = require('../controllers/Football/LiveMatchMarket');
-const { TennisPreMatchMarket } = require('../controllers/Tennis/PreMatchMarket');
-const { TennisPreMatchoods } = require('../controllers/Tennis/PreMatchOdds');
-const { TennisLiveMatchMarket } = require('../controllers/Tennis/LiveMatchMarket');
+const { TennisPreMatchMarket } = require('../controllers/Tennis/PreMatchMarketController');
+const { TennisPreMatchoods } = require('../controllers/Tennis/PreMatchOddsController');
+const { TennisLiveMatchMarket } = require('../controllers/Tennis/LiveMatchMarketController');
 
 // Football Routes
 router.get('/football/pre-match/market/list', PreMatchMarket);

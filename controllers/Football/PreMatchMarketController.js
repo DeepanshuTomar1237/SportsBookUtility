@@ -6,7 +6,7 @@
 const { fetchBet365Data } = require('../../utils/api');
 const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
 const { formatSportsData } = require('../../utils/dataFormatter');
-const PreMatchMarket = require('../../models/PreMatchMarket');
+const PreMatchMarket = require('../../models/Football/PreMatchMarket');
 const { TARGET_FIS } = require('../../constants/bookmakers');
 require('dotenv').config();
 

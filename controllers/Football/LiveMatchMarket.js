@@ -1,5 +1,5 @@
 require('dotenv').config();
-const FootballMarket = require('../../models/LiveMatchMarket');
+const FootballMarket = require('../../models/Football/LiveMatchMarket');
 const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMatchMarketProcessor');
 const { FOOTBALL_DEFAULT_EVENT_IDS } = require('../../constants/bookmakers');
 

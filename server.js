@@ -1,7 +1,7 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
-const oddsRoutes = require('./routes/oddsRoutes');
+const oddsRoutes = require('./routes/Index');
 const connectDB = require('./config/db');
 
 
