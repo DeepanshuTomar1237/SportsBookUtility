@@ -58,9 +58,10 @@ class PreMatchOddsProcessor extends BaseMarketProcessor {
       consolidatedMarkets[marketKey].odds = marketData.odds.map(odd => ({
         id: odd.id,
         odds: odd.odds.toString(),
-        header: odd.header || null,
-        name: odd.name || null,
-        handicap: odd.handicap || null
+        header: odd.header,
+        name: odd.name,
+        handicap: odd.handicap,
+        team: odd.team,
       }));
     }
   }

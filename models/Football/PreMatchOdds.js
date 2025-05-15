@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const OddsSchema = new mongoose.Schema({
   id: String,
   odds: String,
-  header: { type: String, default: null },
-  name: { type: String, default: null },
-  handicap: { type: mongoose.Schema.Types.Mixed, default: null }
+  header: { type: String },
+  name: { type: String },
+  team: { type: String },
+  handicap: { type: mongoose.Schema.Types.Mixed }
+ 
+  
 }, { _id: false, versionKey: false });
 
 const MarketSchema = new mongoose.Schema({

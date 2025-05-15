@@ -2,6 +2,7 @@
 module.exports = {
     // Combined list of all target bookmakers
     TARGET_FIS: [
+      '174570394',
       '174229112', // BET365
       '174187790', // WILLIAM_HILL
       '174277015', // BETFAIR
