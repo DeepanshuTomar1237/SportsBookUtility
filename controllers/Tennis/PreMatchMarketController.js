@@ -1,7 +1,7 @@
 
 // controllers\PreMatchFootball.js
 const axios = require('axios');
-const Tennis = require('../../models/Tennis/PreMatchmarket');
+const { PreMatchMarket } = require('../../models/Tennis/PreMatchmarket');
 
 exports.TennisPreMatchMarket = async (req, res) => {
   try {
@@ -58,7 +58,7 @@ exports.TennisPreMatchMarket = async (req, res) => {
 
     // Transform into the desired format
     const sportsData = {
-      id: 13,
+      sportId: 13,
       name: "Tennis",
       count: Object.keys(consolidatedMarkets).length,
       markets: Object.values(consolidatedMarkets).map(market => ({
@@ -67,18 +67,18 @@ exports.TennisPreMatchMarket = async (req, res) => {
       }))
     };
 
-    // Store in MongoDB
+    // Store in MongoDB with the new structure
     try {
-      // Upsert operation - update if exists, insert if not
-      await Tennis.findOneAndUpdate(
-        { id: 13 },
+      // Upsert operation in the prematchmarkets collection
+      await PreMatchMarket.findOneAndUpdate(
+        { sportId: 13 },
         sportsData,
         { upsert: true, new: true }
       );
       
-      console.log('Tennis data successfully stored in MongoDB');
+      console.log('Tennis prematch data successfully stored in MongoDB subcollection');
     } catch (dbError) {
-      console.error('Error storing data in MongoDB:', dbError.message);
+      console.error('Error storing data in MongoDB subcollection:', dbError.message);
       // Continue to return the data even if DB storage fails
     }
 
@@ -91,6 +91,7 @@ exports.TennisPreMatchMarket = async (req, res) => {
     });
   }
 };
+
 
 
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const tennisMarketSchema = new mongoose.Schema({
+const preMatchMarketSchema = new mongoose.Schema({
   sportId: {
     type: Number,
     required: true,
@@ -27,12 +27,29 @@ const tennisMarketSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+}, { collection: 'tennis_prematchmarkets' });
 
 // Update the updatedAt field before saving
-tennisMarketSchema.pre('save', function(next) {
+preMatchMarketSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-module.exports = mongoose.model('Tennis', tennisMarketSchema);
+// Create a parent reference if needed
+const TennisSchema = new mongoose.Schema({
+  prematchmarkets: [preMatchMarketSchema]
+}, { collection: 'tennis' });
+
+const SportsbookSchema = new mongoose.Schema({
+  tennis: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tennis'
+  }
+}, { collection: 'sportsbook' });
+
+// Export all models
+module.exports = {
+  PreMatchMarket: mongoose.model('PreMatchMarket', preMatchMarketSchema),
+  Tennis: mongoose.model('Tennis', TennisSchema),
+  Sportsbook: mongoose.model('Sportsbook', SportsbookSchema)
+};
