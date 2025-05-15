@@ -16,9 +16,7 @@ const MarketSchema = new mongoose.Schema({
 
 const PreMatchMarketSchema = new mongoose.Schema({
   PRE_MATCH_MARKETS: [MarketSchema],
-  total_markets: Number,
-  // timestamp: { type: Date, default: Date.now }
-  // Removed the source field completely
+  total_markets: Number
 }, { versionKey: false });
 
-module.exports = mongoose.model('PreMatchodds', PreMatchMarketSchema);
+module.exports = mongoose.model('PreMatchOdds', PreMatchMarketSchema);

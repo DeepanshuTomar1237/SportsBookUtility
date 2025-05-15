@@ -59,12 +59,7 @@ exports.PreMatchMarket = async (req, res) => {
       error: 'Failed to fetch data from Bet365 API' // User-friendly message
     };
 
-    // 3. Add debugging details if in development mode
-    if (process.env.NODE_ENV === 'development') {
-      response.details = error.message; // Specific error
-      response.stack = error.stack; // Where in code it failed
-    }
-
+    
     // 4. Send error response with 500 status (server error)
     res.status(500).json(response);
   }

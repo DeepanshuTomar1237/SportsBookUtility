@@ -1,45 +1,21 @@
-// models\LiveMatchMarket.js
 const mongoose = require('mongoose');
 
-// Define the market subdocument schema
 const marketSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  }
+  id: { type: String, required: true },
+  name: { type: String, required: true }
 });
 
-// Define the main football market schema
 const footballMarketSchema = new mongoose.Schema({
+  count: { type: Number, required: true },
+  markets: { type: [marketSchema], required: true },
+  marketKey: { type: String, required: true, unique: true, select: false }
+}, { versionKey: false });
 
-  count: {
-    type: Number,
-    required: true
-  },
-  markets: {
-    type: [marketSchema],
-    required: true
-  },
- 
- 
-  marketKey: {
-    type: String,
-    required: true,
-    unique: true,
-    select: false // This will exclude the field from query results
-  }
-}, { versionKey: false }); // This removes the __v field
+// Keep at least the marketKey index since you're using it for upserts
+footballMarketSchema.index({ marketKey: 1 }, { unique: true });
 
-// Indexes
-footballMarketSchema.index({ sportId: 1 });
-// footballMarketSchema.index({ lastUpdated: -1 });
-footballMarketSchema.index({ eventIds: 1 });
-footballMarketSchema.index({ marketKey: 1 }, { unique: true }); //  index for upsert
+// Only keep other indexes if you actually query by these fields frequently
+// footballMarketSchema.index({ sportId: 1 });  // Only if you query by sportId
+// footballMarketSchema.index({ eventIds: 1 }); // Only if you query by eventIds
 
-const FootballMarket = mongoose.model('LiveMatchmarket', footballMarketSchema);
-
-module.exports = FootballMarket;
+module.exports = mongoose.model('LiveMatchmarket', footballMarketSchema);
