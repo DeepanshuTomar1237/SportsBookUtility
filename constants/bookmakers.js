@@ -3,16 +3,21 @@ module.exports = {
     // Combined list of all target bookmakers
     TARGET_FIS: [
       '174570394',
-      '174229112', // BET365
-      '174187790', // WILLIAM_HILL
-      '174277015', // BETFAIR
-      '173889141', // PADDY_POWER
-      '174217277', // UNIBET
-      '173889464'  // BETWAY
+      '174229112',
+      '174187790', 
+      '174277015', 
+      '173889141', 
+      '174217277',
+      '173889464',
+      '173447755',
     ],
   
     // Default football event IDs
     FOOTBALL_DEFAULT_EVENT_IDS: [
       '174610881','174597386'
+    ],
+
+    TARGET_FIS_HOCKEY: [
+      '173452579','173452585','173452576'
     ]
   };
