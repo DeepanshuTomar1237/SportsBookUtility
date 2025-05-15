@@ -1,6 +1,7 @@
 
 // controllers\PreMatchFootball.js
 const axios = require('axios');
+const Tennis = require('../../models/Tennis/PreMatchmarket');
 
 exports.TennisPreMatchMarket = async (req, res) => {
   try {
@@ -66,6 +67,21 @@ exports.TennisPreMatchMarket = async (req, res) => {
       }))
     };
 
+    // Store in MongoDB
+    try {
+      // Upsert operation - update if exists, insert if not
+      await Tennis.findOneAndUpdate(
+        { id: 13 },
+        sportsData,
+        { upsert: true, new: true }
+      );
+      
+      console.log('Tennis data successfully stored in MongoDB');
+    } catch (dbError) {
+      console.error('Error storing data in MongoDB:', dbError.message);
+      // Continue to return the data even if DB storage fails
+    }
+
     res.json([sportsData]);
   } catch (error) {
     console.error('Error fetching data:', error.message);
@@ -75,6 +91,8 @@ exports.TennisPreMatchMarket = async (req, res) => {
     });
   }
 };
+
+
 
 function processSectionWithPriority(sectionData, consolidatedMarkets, fi, oddsSet) {
   if (!sectionData || !sectionData.sp) return;
