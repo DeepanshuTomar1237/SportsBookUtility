@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
-const eventSchema = new mongoose.Schema({
+const leagueSchema = new mongoose.Schema({
   id: String,
-  home: String,
-  away: String,
-  league: String
+  name: String
 }, { _id: false });
 
 const marketSchema = new mongoose.Schema({
   id: String,
-  name: String
+  name: String,
+  leagues: [leagueSchema]
 }, { _id: false });
 
 const preMatchMarketSchema = new mongoose.Schema({
@@ -20,7 +19,6 @@ const preMatchMarketSchema = new mongoose.Schema({
   },
   name: String,
   count: Number,
-  events: [eventSchema],
   markets: [marketSchema]
 }, {
   collection: 'tennis_prematchmarkets',

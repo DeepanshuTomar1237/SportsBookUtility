@@ -10,8 +10,10 @@ const TENNIS_CONFIG = {
 
 exports.TennisPreMatchMarket = async (req, res) => {
   try {
+    // Step 1: Fetch data from API
     const response = await fetchBet365Data(TARGET_FIS_TENNIS);
     
+    // Step 2: Check if data exists
     if (!response?.results?.length) {
       return res.status(404).json({ 
         error: 'No tennis events found',
@@ -19,7 +21,8 @@ exports.TennisPreMatchMarket = async (req, res) => {
       });
     }
 
-    const eventsWithMetadata = TARGET_FIS_TENNIS
+    // Step 3: Enrich events with metadata
+    const enrichedEvents = TARGET_FIS_TENNIS
       .map(fi => {
         const event = response.results.find(ev => ev.FI?.toString() === fi);
         if (!event) return null;
@@ -29,13 +32,16 @@ exports.TennisPreMatchMarket = async (req, res) => {
           ...event,
           home: eventInfo.home,
           away: eventInfo.away,
-          league: eventInfo.leagueId
+          leagueId: eventInfo.leagueId,
+          eventId: eventInfo.id // Make sure this is included
         };
       })
       .filter(Boolean);
 
-    const processedMarkets = processMarkets(eventsWithMetadata);
+    // Step 4: Process markets
+    const processedMarkets = processMarkets(enrichedEvents);
     
+    // Step 5: Prepare response
     const responseData = {
       id: TENNIS_CONFIG.id,
       name: TENNIS_CONFIG.name,
@@ -43,12 +49,14 @@ exports.TennisPreMatchMarket = async (req, res) => {
       markets: processedMarkets
     };
 
+    // Step 6: Update database
     await PreMatchMarket.findOneAndUpdate(
       { id: TENNIS_CONFIG.id },
       responseData,
       { upsert: true, new: true }
     );
     
+    // Step 7: Send response
     res.json(responseData);
     
   } catch (error) {

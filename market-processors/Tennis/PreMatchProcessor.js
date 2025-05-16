@@ -1,16 +1,18 @@
-const BaseMarketProcessor = require('./BaseMarketProcessor');
-
-class TennisPreMatchMarketProcessor extends BaseMarketProcessor {
+class TennisPreMatchMarketProcessor {
   static process(events) {
     const consolidatedMarkets = {};
     
     for (const event of events) {
-      if (!event || !event.league) continue;
+      if (!event || !event.leagueId || !event.eventId) {
+        console.log('Skipping event - missing required fields:', event);
+        continue;
+      }
       
-      const sections = this.getTennisEventSections(event);
+      // Get all market sections from the event
+      const sections = this.getEventSections(event);
       
       for (const section of sections) {
-        if (section) {
+        if (section && section.sp) {
           this.processSection(section, consolidatedMarkets, event);
         }
       }
@@ -19,57 +21,65 @@ class TennisPreMatchMarketProcessor extends BaseMarketProcessor {
     return Object.values(consolidatedMarkets);
   }
 
-  static getTennisEventSections(event) {
+  static getEventSections(event) {
     return [
       event.main,
       event.specials,
       event.games,
       event.sets,
-      ...(event.others || [])
+      ...(Array.isArray(event.others) ? event.others : [])
     ].filter(Boolean);
   }
 
-  static processSection(sectionData, consolidatedMarkets, event) {
-    if (!sectionData?.sp) return;
-
-    for (const marketData of Object.values(sectionData.sp)) {
+  static processSection(section, markets, event) {
+    for (const marketData of Object.values(section.sp)) {
       if (!marketData) continue;
       
       if (marketData.id && marketData.name) {
-        this.addMarket(marketData, consolidatedMarkets, event);
+        this.addMarket(marketData, markets, event);
       } else {
-        for (const subMarketData of Object.values(marketData)) {
-          if (subMarketData?.id && subMarketData?.name) {
-            this.addMarket(subMarketData, consolidatedMarkets, event);
+        // Handle nested markets
+        for (const subMarket of Object.values(marketData)) {
+          if (subMarket?.id && subMarket?.name) {
+            this.addMarket(subMarket, markets, event);
           }
         }
       }
     }
   }
 
-  static addMarket(marketData, consolidatedMarkets, event) {
+  static addMarket(marketData, markets, event) {
     const marketId = marketData.id.toString();
     let marketName = marketData.name;
     
-    // Safely replace player names with Home/Away
-    if (event.home && typeof event.home === 'string') {
-      const escapedHome = this.escapeRegExp(event.home);
-      marketName = marketName.replace(new RegExp(escapedHome, 'g'), 'Home');
+    // Replace player names with Home/Away
+    if (event.home) {
+        marketName = marketName.replace(new RegExp(this.escapeRegExp(event.home), 'g'), 'Home');
+
     }
-    
-    if (event.away && typeof event.away === 'string') {
-      const escapedAway = this.escapeRegExp(event.away);
-      marketName = marketName.replace(new RegExp(escapedAway, 'g'), 'Away');
+    if (event.away) {
+        marketName = marketName.replace(new RegExp(this.escapeRegExp(event.away), 'g'), 'Away');
+
     }
     
     const marketKey = `${marketId}_${marketName}`;
 
-    if (!consolidatedMarkets[marketKey]) {
-      consolidatedMarkets[marketKey] = {
+    if (!markets[marketKey]) {
+      markets[marketKey] = {
         id: marketId,
         name: marketName,
-        league: event.league || 'Unknown League'
+        leagues: []
       };
+    }
+
+    // Add league info if not already present
+    const leagueInfo = {
+      id: event.eventId,
+      name: event.leagueId
+    };
+    
+    if (!markets[marketKey].leagues.some(l => l.id === leagueInfo.id)) {
+      markets[marketKey].leagues.push(leagueInfo);
     }
   }
 
