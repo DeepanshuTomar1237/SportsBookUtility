@@ -10,6 +10,12 @@ const PreMatchMarket = require('../../models/Football/PreMatchMarket');
 const { TARGET_FIS } = require('../../constants/bookmakers');
 require('dotenv').config();
 
+// Constants that were previously hardcoded in utils
+const SPORT_CONFIG = {
+  id: 1, // Static sport ID (could be dynamic)
+  name: 'Football'
+};
+
 // Main function to handle pre-match market data
 exports.PreMatchMarket = async (req, res) => {
   try {
@@ -34,7 +40,7 @@ exports.PreMatchMarket = async (req, res) => {
 
     // STEP 4: Format for our database and frontend
     // Structures the data with consistent naming and organization
-    const sportsData = formatSportsData(consolidatedMarkets);
+    const sportsData = formatSportsData(consolidatedMarkets, SPORT_CONFIG);
 
     // STEP 5: Save to database
     // Updates existing record or creates new one if needed ("upsert")
@@ -59,7 +65,6 @@ exports.PreMatchMarket = async (req, res) => {
       error: 'Failed to fetch data from Bet365 API' // User-friendly message
     };
 
-    
     // 4. Send error response with 500 status (server error)
     res.status(500).json(response);
   }
