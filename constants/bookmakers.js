@@ -2,7 +2,7 @@
 module.exports = {
     // Combined list of all target bookmakers
     TARGET_FIS: [
-      '174570394',
+     
       '174229112',
       '174187790', 
       '174277015', 
@@ -10,6 +10,7 @@ module.exports = {
       '174217277',
       '173889464',
       '173447755',
+      '174570394',
     ],
   
     // Default football event IDs

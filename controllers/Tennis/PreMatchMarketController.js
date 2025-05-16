@@ -1,11 +1,11 @@
-
-// controllers\Tennis\PreMatchMarketController.js
+// controllers/Tennis/PreMatchMarketController.js
 const axios = require('axios');
 const { PreMatchMarket } = require('../../models/Tennis/PreMatchmarket');
+const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
 
 exports.TennisPreMatchMarket = async (req, res) => {
   try {
-    const targetFIs = ['174515827', '174515829','174520444','174465670', '174505725', '174508102', '174508104', '174512203', '174512207'];
+    const targetFIs = ['174515827', '174515829', '174520444', '174465670', '174505725', '174508102', '174508104', '174512203', '174512207'];
 
     const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
       params: {
@@ -22,64 +22,35 @@ exports.TennisPreMatchMarket = async (req, res) => {
       return res.status(404).json({ error: 'No events found' });
     }
 
-    const consolidatedMarkets = {};
-    const oddsSet = new Set();
+    // Filter events based on target FIs (in priority order)
+    const filteredEvents = targetFIs
+      .map(fi => response.data.results.find(ev => ev.FI?.toString() === fi))
+      .filter(Boolean);
 
-    // Process FIs in priority order
-    for (const fi of targetFIs) {
-      const event = response.data.results.find(ev => ev.FI?.toString() === fi);
-      if (!event) continue;
+    // Process markets using the shared processor
+    const consolidatedMarkets = processMarkets(filteredEvents);
 
-      const sections = [
-        event.asian_lines,
-        event.goals,
-        event.main,
-        event.half,
-        event.minutes,
-        event.specials,
-        event.corners,
-        ...(Array.isArray(event.others) ? event.others : [])
-      ];
-
-      for (const section of sections) {
-        processSectionWithPriority(section, consolidatedMarkets, fi, oddsSet);
-      }
-    }
-
-    // Deduplicate odds by ID
-    for (const market of Object.values(consolidatedMarkets)) {
-      const seen = new Set();
-      market.odds = market.odds.filter(odd => {
-        if (!odd.id || seen.has(odd.id)) return false;
-        seen.add(odd.id);
-        return true;
-      });
-    }
-
-    // Transform into the desired format
+    // Transform into the desired format (without odds)
     const sportsData = {
-      sportId: 13,
+      id: 13,
       name: "Tennis",
       count: Object.keys(consolidatedMarkets).length,
-      markets: Object.values(consolidatedMarkets).map(market => ({
-        id: market.id,
-        name: market.name
+      markets: Object.keys(consolidatedMarkets).map(marketKey => ({
+        id: consolidatedMarkets[marketKey].id,
+        name: consolidatedMarkets[marketKey].name
       }))
     };
 
-    // Store in MongoDB with the new structure
+    // Store in MongoDB
     try {
-      // Upsert operation in the prematchmarkets collection
       await PreMatchMarket.findOneAndUpdate(
-        { sportId: 13 },
+        { id: 13 },
         sportsData,
         { upsert: true, new: true }
       );
-      
-      console.log('Tennis prematch data successfully stored in MongoDB subcollection');
+      console.log('Tennis prematch data successfully stored in MongoDB');
     } catch (dbError) {
-      console.error('Error storing data in MongoDB subcollection:', dbError.message);
-      // Continue to return the data even if DB storage fails
+      console.error('Error storing data:', dbError.message);
     }
 
     res.json([sportsData]);
@@ -91,51 +62,3 @@ exports.TennisPreMatchMarket = async (req, res) => {
     });
   }
 };
-
-
-
-
-function processSectionWithPriority(sectionData, consolidatedMarkets, fi, oddsSet) {
-  if (!sectionData || !sectionData.sp) return;
-
-  for (const [marketKey, marketData] of Object.entries(sectionData.sp)) {
-    if (!marketData || typeof marketData !== 'object') continue;
-
-    if (marketData.id && marketData.name) {
-      mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet);
-    } else {
-      for (const [_, subMarketData] of Object.entries(marketData)) {
-        if (subMarketData?.id && subMarketData?.name) {
-          mergeMarketWithOddsPriority(subMarketData, consolidatedMarkets, oddsSet);
-        }
-      }
-    }
-  }
-}
-
-function mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet) {
-  const marketId = marketData.id.toString();
-  const marketName = marketData.name;
-  const marketKey = `${marketId}_${marketName}`;
-
-  // Create market entry if it doesn't exist
-  if (!consolidatedMarkets[marketKey]) {
-    consolidatedMarkets[marketKey] = {
-      id: marketId,
-      name: marketName,
-      odds: []
-    };
-  }
-
-  // Add odds only if none added before and current has odds
-  if (consolidatedMarkets[marketKey].odds.length === 0 && Array.isArray(marketData.odds) && marketData.odds.length > 0) {
-    const odds = marketData.odds.map(odd => ({
-      id: odd.id,
-      odds: odd.odds,
-      header: odd.header,
-      name: odd.name,
-      handicap: odd.handicap 
-    }));
-    consolidatedMarkets[marketKey].odds.push(...odds);
-  }
-}

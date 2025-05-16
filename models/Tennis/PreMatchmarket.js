@@ -1,10 +1,22 @@
-// models\Tennis\PreMatchmarket.js
+// models/Tennis/PreMatchmarket.js
 const mongoose = require('mongoose');
 
+const marketSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  }
+}, { _id: false }); // Disable _id for subdocuments
+
 const preMatchMarketSchema = new mongoose.Schema({
-  sportId: {
+  id: {
     type: Number,
     required: true,
+    unique: true,
     default: 13
   },
   name: {
@@ -16,10 +28,10 @@ const preMatchMarketSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  markets: [{
-    id: String,
-    name: String
-  }],
+  markets: {
+    type: [marketSchema],
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -28,29 +40,36 @@ const preMatchMarketSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-}, { collection: 'tennis_prematchmarkets' });
+}, { 
+  collection: 'tennis_prematchmarkets',
+  versionKey: false, // Disable the __v field
+  toJSON: {
+    transform: function(doc, ret) {
+      // Reorder fields when converting to JSON
+      return {
+        id: ret.id,
+        name: ret.name,
+        count: ret.count,
+        markets: ret.markets,
+        createdAt: ret.createdAt,
+        updatedAt: ret.updatedAt,
+        _id: ret._id
+      };
+    }
+  }
 
-// Update the updatedAt field before saving
+});
+
+// Update timestamp before saving
 preMatchMarketSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Create a parent reference if needed
-const TennisSchema = new mongoose.Schema({
-  prematchmarkets: [preMatchMarketSchema]
-}, { collection: 'tennis' });
+// Create index on id field for faster queries
+preMatchMarketSchema.index({ id: 1 }, { unique: true });
 
-const SportsbookSchema = new mongoose.Schema({
-  tennis: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tennis'
-  }
-}, { collection: 'sportsbook' });
-
-// Export all models
+// Remove the nested schemas since we're not using them
 module.exports = {
-  PreMatchMarket: mongoose.model('PreMatchMarket', preMatchMarketSchema),
-  Tennis: mongoose.model('Tennis', TennisSchema),
-  Sportsbook: mongoose.model('Sportsbook', SportsbookSchema)
+  PreMatchMarket: mongoose.model('PreMatchMarket', preMatchMarketSchema)
 };
