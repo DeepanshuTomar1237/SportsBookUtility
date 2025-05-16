@@ -1,5 +1,5 @@
 // market-processors\Football\PreMatchOddsProcessor.js
-const BaseMarketProcessor = require('./BaseMarketProcessor');
+const BaseMarketProcessor = require('../Tennis/BaseMarketProcessor');
 
 class PreMatchOddsProcessor extends BaseMarketProcessor {
   static process(data, TARGET_FIS) {

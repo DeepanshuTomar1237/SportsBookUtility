@@ -1,75 +1,31 @@
-// models/Tennis/PreMatchmarket.js
 const mongoose = require('mongoose');
 
+const eventSchema = new mongoose.Schema({
+  id: String,
+  home: String,
+  away: String,
+  league: String
+}, { _id: false });
+
 const marketSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  }
-}, { _id: false }); // Disable _id for subdocuments
+  id: String,
+  name: String
+}, { _id: false });
 
 const preMatchMarketSchema = new mongoose.Schema({
   id: {
     type: Number,
     required: true,
-    unique: true,
-    default: 13
+    unique: true
   },
-  name: {
-    type: String,
-    required: true,
-    default: "Tennis"
-  },
-  count: {
-    type: Number,
-    required: true
-  },
-  markets: {
-    type: [marketSchema],
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
-}, { 
+  name: String,
+  count: Number,
+  events: [eventSchema],
+  markets: [marketSchema]
+}, {
   collection: 'tennis_prematchmarkets',
-  versionKey: false, // Disable the __v field
-  toJSON: {
-    transform: function(doc, ret) {
-      // Reorder fields when converting to JSON
-      return {
-        id: ret.id,
-        name: ret.name,
-        count: ret.count,
-        markets: ret.markets,
-        createdAt: ret.createdAt,
-        updatedAt: ret.updatedAt,
-        _id: ret._id
-      };
-    }
-  }
-
+  versionKey: false,
+  timestamps: false
 });
 
-// Update timestamp before saving
-preMatchMarketSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-// Create index on id field for faster queries
-preMatchMarketSchema.index({ id: 1 }, { unique: true });
-
-// Remove the nested schemas since we're not using them
-module.exports = {
-  PreMatchMarket: mongoose.model('PreMatchMarket', preMatchMarketSchema)
-};
+module.exports = mongoose.model('PreMatchMarket', preMatchMarketSchema);
