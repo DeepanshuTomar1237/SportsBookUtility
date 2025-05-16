@@ -1,130 +1,66 @@
+// controllers/Tennis/PreMatchOddsController.js
+// Import necessary tools and files needed for this function to work
+const { fetchBet365Data } = require('../../utils/api'); // Tool to get data from Bet365 website
+const TennisPreMatchOdds = require('../../models/Tennis/PreMatchOdds'); // Database model for storing tennis match odds
+const TennisPreMatchOddsProcessor = require('../../market-processors/Football/PreMatchOddsProcessor'); // Tool to process tennis raw data
+const { TARGET_FIS_TENNIS } = require('../../constants/bookmakers'); // Constant value for the tennis bookmaker we're using
+require('dotenv').config(); // Tool to read environment variables (secret settings)
 
-// controllers\Tennis\PreMatchOddsController.js
-const axios = require('axios');
-
-exports.TennisPreMatchoods = async (req, res) => {
+// This is the main function that handles getting and saving tennis match odds
+exports.TennisPreMatchOdds = async (req, res) => {
   try {
-    const targetFIs = ['174515827', '174515829','174520444','174465670', '174505725', '174508102', '174508104', '174512203', '174512207'];
+    // Step 1: Get the raw tennis betting data from Bet365
+    const data = await fetchBet365Data(TARGET_FIS_TENNIS);
+    
+    // Step 2: Clean up and organize the raw data into a better format
+    const processedData = TennisPreMatchOddsProcessor.process(data, TARGET_FIS_TENNIS);
 
-    const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
-      params: {
-        token: '72339-5QJh8lscw8VTIY',
-        FI: targetFIs.join(',')
-      },
-      paramsSerializer: params =>
-        Object.entries(params)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&')
-    });
-
-    if (!response.data.results || response.data.results.length === 0) {
-      return res.status(404).json({ error: 'No events found' });
+    // If there was an error processing the data, send that error back
+    if (processedData.error) {
+      return res.status(404).json(processedData);
     }
 
-    const consolidatedMarkets = {};
-    const oddsSet = new Set();
-
-    // Process FIs in priority order
-    for (const fi of targetFIs) {
-      const event = response.data.results.find(ev => ev.FI?.toString() === fi);
-      if (!event) continue;
-
-      const sections = [
-        event.asian_lines,
-        event.goals,
-        event.main,
-        event.half,
-        event.minutes,
-        event.specials,
-        event.corners,
-        ...(Array.isArray(event.others) ? event.others : [])
-      ];
-
-      for (const section of sections) {
-        processSectionWithPriority(section, consolidatedMarkets, fi, oddsSet);
+    // Step 3: Prepare the data to be saved in the database
+    const update = {
+      $set: {
+        PRE_MATCH_MARKETS: processedData.PRE_MATCH_MARKETS, // The actual betting odds
+        total_markets: processedData.total_markets // How many betting options there are
       }
-    }
+    };
+    // Settings for how we want to save the data:
+    const options = { 
+      new: true, // Return the updated data after saving
+      upsert: true, // If no record exists, create a new one
+     
+    };
 
-    // Deduplicate odds by ID
-    for (const market of Object.values(consolidatedMarkets)) {
-      const seen = new Set();
-      market.odds = market.odds.filter(odd => {
-        if (!odd.id || seen.has(odd.id)) return false;
-        seen.add(odd.id);
-        return true;
-      });
-    }
+    // Step 4: Save the data to the database
+    // This either updates an existing record or creates a new one using eventId
+    const result = await TennisPreMatchOdds.findOneAndUpdate({}, update, options);
 
-    const totalMarkets = Object.keys(consolidatedMarkets).length; // Count markets
+    // Step 5: Prepare the data to send back to whoever asked for it
+    const response = {
+      PRE_MATCH_MARKETS: result.PRE_MATCH_MARKETS,
+      total_markets: result.total_markets
+    };
 
-    res.json([{ 
-      PRE_MATCH_MARKETS: Object.values(consolidatedMarkets),
-      total_markets: totalMarkets  // Include count in response
-    }]);
+
+    // Step 6: Send the data back as a response
+    res.json([response]);
+
   } catch (error) {
-    console.error('Error fetching data:', error.message);
-    res.status(500).json({ 
-      error: 'Failed to fetch data from Bet365 API',
-      details: error.message
-    });
+    // If anything goes wrong in the steps above, this part runs
+    
+    // Print the error in the server console so developers can see it
+    console.error('API Error:', error.message);
+    
+    // Prepare a simple error message to send back
+    const response = {
+      error: 'Failed to fetch or store tennis data',
+      details: error.message // Include more details than football version since tennis might need more debugging
+    };
+
+    // Send the error response with a 500 status code (means server error)
+    res.status(500).json(response);
   }
 };
-
-function processSectionWithPriority(sectionData, consolidatedMarkets, fi, oddsSet) {
-  if (!sectionData || !sectionData.sp) return;
-
-  for (const [marketKey, marketData] of Object.entries(sectionData.sp)) {
-    if (!marketData || typeof marketData !== 'object') continue;
-
-    if (marketData.id && marketData.name) {
-      mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet);
-    } else {
-      for (const [_, subMarketData] of Object.entries(marketData)) {
-        if (subMarketData?.id && subMarketData?.name) {
-          mergeMarketWithOddsPriority(subMarketData, consolidatedMarkets, oddsSet);
-        }
-      }
-    }
-  }
-}
-
-function mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet) {
-  const marketId = marketData.id.toString();
-  const marketName = marketData.name;
-  const marketKey = `${marketId}_${marketName}`;
-
-  // Create market entry if it doesn't exist
-  if (!consolidatedMarkets[marketKey]) {
-    consolidatedMarkets[marketKey] = {
-      id: marketId,
-      name: marketName,
-      odds: []
-    };
-  }
-
-  // Add odds only if none added before and current has odds
-  if (consolidatedMarkets[marketKey].odds.length === 0 && Array.isArray(marketData.odds) && marketData.odds.length > 0) {
-    const odds = marketData.odds.map(odd => ({
-      id: odd.id,
-      odds: odd.odds,
-      header: odd.header,
-      name: odd.name,
-      handicap: odd.handicap 
-    }));
-    consolidatedMarkets[marketKey].odds.push(...odds);
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-

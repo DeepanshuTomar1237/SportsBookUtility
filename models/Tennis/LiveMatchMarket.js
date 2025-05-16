@@ -1,59 +1,23 @@
 const mongoose = require('mongoose');
 
+const marketSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  name: { type: String, required: true }
+});
+
 const tennisLiveMarketSchema = new mongoose.Schema({
-  // Basic identification
-  sportId: {
-    type: Number,
-    required: true,
-    default: 13 // Tennis
-  },
-  sportName: {
-    type: String,
-    required: true,
-    default: "Tennis"
-  },
-  // Market data
-  markets: [{
-    id: {
-      type: String,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    }
-  }],
-  // Count of markets
-  count: {
-    type: Number,
-    required: true
-  },
-  // Event IDs used to fetch this data
-  eventIds: [String],
-  // Metadata
-  lastUpdated: {
-    type: Date,
-    default: Date.now
-  },
-  // Reference to the source
-  source: {
-    type: String,
-    default: "jarlon-api"
-  }
-}, {
-  collection: 'tennis_live_markets', // Explicit collection name
-  timestamps: true // Adds createdAt and updatedAt automatically
-});
+  sportId: { type: String },   // Add this
+  name: { type: String },      // Add this
+  count: { type: Number, required: true },
+  markets: { type: [marketSchema], required: true },
+  marketKey: { type: String, required: true, unique: true, select: false }
+}, { versionKey: false });
 
-// Indexes for faster querying
-tennisLiveMarketSchema.index({ sportId: 1 });
-tennisLiveMarketSchema.index({ 'markets.id': 1 });
-tennisLiveMarketSchema.index({ lastUpdated: -1 });
+// Keep at least the marketKey index since you're using it for upserts
+tennisLiveMarketSchema.index({ marketKey: 1 }, { unique: true });
 
-// Middleware to update lastUpdated before saving
-tennisLiveMarketSchema.pre('save', function(next) {
-  this.lastUpdated = new Date();
-  next();
-});
+// Only keep other indexes if you actually query by these fields frequently
+// footballMarketSchema.index({ sportId: 1 });  // Only if you query by sportId
+// footballMarketSchema.index({ eventIds: 1 }); // Only if you query by eventIds
 
 module.exports = mongoose.model('TennisLiveMarket', tennisLiveMarketSchema);
