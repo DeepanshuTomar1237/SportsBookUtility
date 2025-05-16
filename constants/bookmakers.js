@@ -1,24 +1,20 @@
 // constants/bookmakers.js
 module.exports = {
-    // Combined list of all target bookmakers
-    TARGET_FIS: [
-     
-      '174229112',
-      '174187790', 
-      '174277015', 
-      '173889141', 
-      '174217277',
-      '173889464',
-      '173447755',
-      '174570394',
-    ],
+  // Tennis event IDs
+  TARGET_FIS_TENNIS: [
+    '174515827', '174515829', '174520444', '174465670',
+    '174505725', '174508102', '174508104', '174512203', '174512207'
+  ],
   
-    // Default football event IDs
-    FOOTBALL_DEFAULT_EVENT_IDS: [
-      '174610881','174597386'
-    ],
-
-    TARGET_FIS_HOCKEY: [
-      '173452579','173452585','173452576'
-    ]
-  };
+  // Other sport IDs remain the same
+  TARGET_FIS: [
+    '174229112', '174187790', '174277015', '173889141',
+    '174217277', '173889464', '173447755', '174570394'
+  ],
+  FOOTBALL_DEFAULT_EVENT_IDS: [
+    '174610881', '174597386'
+  ],
+  TARGET_FIS_HOCKEY: [
+    '173452579', '173452585', '173452576'
+  ]
+};

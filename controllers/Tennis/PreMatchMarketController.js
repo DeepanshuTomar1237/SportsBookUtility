@@ -1,63 +1,50 @@
-// controllers/Tennis/PreMatchMarketController.js
-const axios = require('axios');
-const { PreMatchMarket } = require('../../models/Tennis/PreMatchmarket');
-const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
+// Import required helper functions and database model
+const { fetchBet365Data } = require('../../utils/api'); // Function to get data from Bet365 API
+const { formatSportsData } = require('../../utils/dataFormatter'); // Function to clean and structure sports data
+const { PreMatchMarket } = require('../../models/Tennis/PreMatchmarket'); // Database model for Tennis Pre-Match Market
+const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor'); // Function to process market data
+const { TARGET_FIS_TENNIS } = require('../../constants/bookmakers'); // List of Tennis market IDs we care about
 
+// Controller function to handle Tennis Pre-Match Market data
 exports.TennisPreMatchMarket = async (req, res) => {
   try {
-    const targetFIs = ['174515827', '174515829', '174520444', '174465670', '174505725', '174508102', '174508104', '174512203', '174512207'];
-
-    const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
-      params: {
-        token: '72339-5QJh8lscw8VTIY',
-        FI: targetFIs.join(',')
-      },
-      paramsSerializer: params =>
-        Object.entries(params)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&')
-    });
-
-    if (!response.data.results || response.data.results.length === 0) {
-      return res.status(404).json({ error: 'No events found' });
+    // Step 1: Fetch Tennis data from Bet365 API
+    const response = await fetchBet365Data(TARGET_FIS_TENNIS);
+    
+    // Step 2: If no data is found, return an error response
+    if (!response?.results?.length) {
+      return res.status(404).json({ error: 'No tennis events found' });
     }
 
-    // Filter events based on target FIs (in priority order)
-    const filteredEvents = targetFIs
-      .map(fi => response.data.results.find(ev => ev.FI?.toString() === fi))
-      .filter(Boolean);
-
-    // Process markets using the shared processor
-    const consolidatedMarkets = processMarkets(filteredEvents);
-
-    // Transform into the desired format (without odds)
+    // Step 3: Process and format the Tennis data we received
     const sportsData = {
-      id: 13,
-      name: "Tennis",
-      count: Object.keys(consolidatedMarkets).length,
-      markets: Object.keys(consolidatedMarkets).map(marketKey => ({
-        id: consolidatedMarkets[marketKey].id,
-        name: consolidatedMarkets[marketKey].name
-      }))
+      ...formatSportsData(
+        processMarkets(
+          TARGET_FIS_TENNIS // List of market IDs
+            .map(fi => response.results.find(ev => ev.FI?.toString() === fi)) // Find matching events by ID  event is string aur jo data array me both same hona chaiye
+            .filter(Boolean) // Remove any undefined/null values
+        )
+      ),
+      id: 13, // Unique ID for Tennis
+      name: "Tennis" // Sport name
     };
 
-    // Store in MongoDB
-    try {
-      await PreMatchMarket.findOneAndUpdate(
-        { id: 13 },
-        sportsData,
-        { upsert: true, new: true }
-      );
-      console.log('Tennis prematch data successfully stored in MongoDB');
-    } catch (dbError) {
-      console.error('Error storing data:', dbError.message);
-    }
-
+    // Step 4: Save the processed Tennis data into the database
+    // If it already exists, update it. If not, create a new record.
+    await PreMatchMarket.findOneAndUpdate(
+      { id: 13 }, // Search by Tennis ID
+      sportsData,  // New data to save
+      { upsert: true, new: true } // Options: insert if not found, return updated document
+    );
+    
+    // Step 5: Send the final Tennis data as a response
     res.json([sportsData]);
+    
   } catch (error) {
-    console.error('Error fetching data:', error.message);
+    // If any error happens, log it and send an error response
+    console.error('Tennis data processing error:', error.message);
     res.status(500).json({ 
-      error: 'Failed to fetch data from Bet365 API',
+      error: 'Failed to process tennis prematch data',
       details: error.message
     });
   }
