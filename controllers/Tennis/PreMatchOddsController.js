@@ -1,66 +1,100 @@
-// controllers/Tennis/PreMatchOddsController.js
-// Import necessary tools and files needed for this function to work
-const { fetchBet365Data } = require('../../utils/api'); // Tool to get data from Bet365 website
-const TennisPreMatchOdds = require('../../models/Tennis/PreMatchOdds'); // Database model for storing tennis match odds
-const TennisPreMatchOddsProcessor = require('../../market-processors/Football/PreMatchOddsProcessor'); // Tool to process tennis raw data
-const { TARGET_FIS_TENNIS } = require('../../constants/bookmakers'); // Constant value for the tennis bookmaker we're using
-require('dotenv').config(); // Tool to read environment variables (secret settings)
+// const { fetchBet365Data } = require('../../utils/api');
+// const PreMatchMarket = require('../../models/Tennis/PreMatchOdds');
+// const { processOdds } = require('../../market-processors/Tennis/PreMatchOdds');
+// const { TENNIS_EVENTS, TARGET_FIS_TENNIS } = require('../../constants/bookmakers');
 
-// This is the main function that handles getting and saving tennis match odds
-exports.TennisPreMatchOdds = async (req, res) => {
-  try {
-    // Step 1: Get the raw tennis betting data from Bet365
-    const data = await fetchBet365Data(TARGET_FIS_TENNIS);
+// const TENNIS_CONFIG = {
+//   id: 13,
+//   name: 'Tennis'
+// };
+
+// /**
+//  * Fetches and processes Tennis pre-match odds from Bet365 API
+//  * @param {Object} req - Express request object
+//  * @param {Object} res - Express response object
+//  */
+// const TennisPreMatchOdds = async (req, res) => {
+//   try {
+//     // Step 1: Fetch data from API
+//     const response = await fetchBet365Data(TARGET_FIS_TENNIS);
     
-    // Step 2: Clean up and organize the raw data into a better format
-    const processedData = TennisPreMatchOddsProcessor.process(data, TARGET_FIS_TENNIS);
+//     // Step 2: Validate API response
+//     if (!response?.results?.length) {
+//       return res.status(404).json({ 
+//         success: false,
+//         error: 'No tennis events found',
+//         request: { FIs: TARGET_FIS_TENNIS }
+//       });
+//     }
 
-    // If there was an error processing the data, send that error back
-    if (processedData.error) {
-      return res.status(404).json(processedData);
-    }
+//     // Step 3: Enrich events with metadata
+//     const enrichedEvents = TARGET_FIS_TENNIS
+//       .map(fi => {
+//         const event = response.results.find(ev => ev.FI?.toString() === fi);
+//         if (!event) return null;
+        
+//         const eventInfo = TENNIS_EVENTS[fi] || {};
+//         return {
+//           ...event,
+//           home: eventInfo.home,
+//           away: eventInfo.away,
+//           leagueId: eventInfo.leagueId,
+//           eventId: eventInfo.id
+//         };
+//       })
+//       .filter(Boolean);
 
-    // Step 3: Prepare the data to be saved in the database
-    const update = {
-      $set: {
-        PRE_MATCH_MARKETS: processedData.PRE_MATCH_MARKETS, // The actual betting odds
-        total_markets: processedData.total_markets // How many betting options there are
-      }
-    };
-    // Settings for how we want to save the data:
-    const options = { 
-      new: true, // Return the updated data after saving
-      upsert: true, // If no record exists, create a new one
-     
-    };
+//     // Step 4: Process markets if events exist
+//     if (!enrichedEvents.length) {
+//       return res.status(404).json({
+//         success: false,
+//         error: 'No valid tennis events after enrichment',
+//         details: { receivedEvents: response.results.length }
+//       });
+//     }
 
-    // Step 4: Save the data to the database
-    // This either updates an existing record or creates a new one using eventId
-    const result = await TennisPreMatchOdds.findOneAndUpdate({}, update, options);
-
-    // Step 5: Prepare the data to send back to whoever asked for it
-    const response = {
-      PRE_MATCH_MARKETS: result.PRE_MATCH_MARKETS,
-      total_markets: result.total_markets
-    };
-
-
-    // Step 6: Send the data back as a response
-    res.json([response]);
-
-  } catch (error) {
-    // If anything goes wrong in the steps above, this part runs
+//     const processedMarkets = processOdds(enrichedEvents);
     
-    // Print the error in the server console so developers can see it
-    console.error('API Error:', error.message);
-    
-    // Prepare a simple error message to send back
-    const response = {
-      error: 'Failed to fetch or store tennis data',
-      details: error.message // Include more details than football version since tennis might need more debugging
-    };
+//     // Step 5: Prepare response
+//     const responseData = {
+//       success: true,
+//       data: {
+//         id: TENNIS_CONFIG.id,
+//         name: TENNIS_CONFIG.name,
+//         count: processedMarkets.length,
+//         markets: processedMarkets,
+//         lastUpdated: new Date().toISOString()
+//       }
+//     };
 
-    // Send the error response with a 500 status code (means server error)
-    res.status(500).json(response);
-  }
-};
+//     // Step 6: Update database
+//     try {
+//       await PreMatchMarket.findOneAndUpdate(
+//         { id: TENNIS_CONFIG.id },
+//         responseData.data,
+//         { upsert: true, new: true }
+//       );
+//     } catch (dbError) {
+//       console.error('Database update error:', dbError);
+//       // Continue even if DB update fails
+//     }
+    
+//     // Step 7: Send response
+//     res.json(responseData);
+    
+//   } catch (error) {
+//     console.error('Tennis pre-match odds processing error:', error);
+//     res.status(500).json({ 
+//       success: false,
+//       error: 'Failed to process tennis pre-match data',
+//       details: process.env.NODE_ENV === 'development' ? {
+//         message: error.message,
+//         stack: error.stack
+//       } : undefined
+//     });
+//   }
+// };
+
+// module.exports = {
+//   TennisPreMatchOdds
+// };

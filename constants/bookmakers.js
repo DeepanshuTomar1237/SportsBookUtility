@@ -6,6 +6,9 @@ const TENNIS_EVENTS = {
   '174737535': { home: 'Anastasija Arsic', away: 'Sara Gvozdenovic', leagueId: 'UTR Pro Carvoeiro Women', id:"40172" },
   '174625098': { home: 'Hageman/Yesypchuk', away: 'SantiSara GvozdenovicKrook/Mol', leagueId: 'ITF W15 Kotka WD' },
   '174726734': { home: 'Ella Mcdonald', away: 'Ekaterina Khayrutdinova', leagueId: 'ITF W15 ,Monastir', id: "40172" },
+  '174726762': { home: 'Lucy Murphy', away: 'Aneta Novakova', leagueId: 'WTA 1000, Madrid', id: '40200' },
+  '174726761': { home: 'Brooklyn Price', away: 'Amina Sadiq', leagueId: 'ITF W15, Lagos', id: '40199' },
+  
 
 
 };
