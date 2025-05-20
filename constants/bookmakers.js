@@ -11,11 +11,11 @@ const TENNIS_EVENTS = {
 
 };
 
-const TENNIS_LIVE_EVENT_IDS = {
-  '174726738': { home: 'Laia Petretic', away: 'Valeria Bhunu', leagueId: 'ITF M15 Heraklion', id: "13829" },
-  '174736958': { home: 'Yunchaokete Bu', away: 'Francesco Passaro', leagueId: 'Challenger Turin', id:"28962" },
+// const TENNIS_LIVE_EVENT_IDS = {
+//   '174726738': { home: 'Laia Petretic', away: 'Valeria Bhunu', leagueId: 'ITF M15 Heraklion', id: "13829" },
+//   '174736958': { home: 'Yunchaokete Bu', away: 'Francesco Passaro', leagueId: 'Challenger Turin', id:"28962" },
 
-};
+// };
 
 module.exports = {
   // Tennis event IDs with metadata
@@ -24,9 +24,9 @@ module.exports = {
   // Tennis event IDs array
   TARGET_FIS_TENNIS: Object.keys(TENNIS_EVENTS),
 
-  // TENNIS_LIVE_EVENT_IDS: [
-  //   '174705956', '174371853'
-  // ],
+  TENNIS_LIVE_EVENT_IDS: [
+    '174705956', '174371853'
+  ],
   
   // Other sport IDs
   TARGET_FIS: [

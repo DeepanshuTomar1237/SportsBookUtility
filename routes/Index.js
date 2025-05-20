@@ -18,8 +18,8 @@ router.get('/football/pre-match/market/odds', PreMatchOdds);
 router.get('/football/live-match/market/list', LiveMatchMarket);
 
 // // Tennis Routes
-router.get('/tennis/pre-match/market/odds', TennisPreMatchMarket);
-router.get('/tennis/pre-match/market/list', TennisPreMatchOdds);
+router.get('/tennis/pre-match/market/list', TennisPreMatchMarket);
+router.get('/tennis/pre-match/market/odds', TennisPreMatchOdds);
 router.get('/tennis/live-match/market/list', TennisLiveMatchMarket);
 
 // IceHockey Routes
