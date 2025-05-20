@@ -61,7 +61,6 @@ class TennisPreMatchMarketProcessor {
           id: marketId,
           name: marketName,
           leagues: [],
-          odds: []
         };
       }
 
@@ -76,17 +75,7 @@ class TennisPreMatchMarketProcessor {
       }
 
       // Only add odds if they haven't been added for this market yet
-      if (markets[marketKey].odds.length === 0 && Array.isArray(marketData.odds) && marketData.odds.length > 0) {
-        for (const odd of marketData.odds) {
-          markets[marketKey].odds.push({
-            id: odd.id,
-            odds: parseFloat(odd.odds),
-            name: odd.name,
-            header: odd.header,
-            handicap: odd.handicap,
-          });
-        }
-      }
+     
     }
 
     static escapeRegExp(string) {
