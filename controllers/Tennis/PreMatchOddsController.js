@@ -32,69 +32,82 @@ class TennisPreMatchMarketProcessor {
   }
 
   static getEventSections(event) {
-    return [
+    // Get all possible sections dynamically
+    const allSections = Object.values(event).filter(
+      val => typeof val === 'object' && val !== null && val.sp
+    );
+    
+    // Also include explicitly known sections
+    const explicitSections = [
       event.main,
       event.specials,
       event.games,
       event.sets,
       ...(Array.isArray(event.others) ? event.others : [])
     ].filter(Boolean);
+
+    // Combine and deduplicate sections
+    const combined = [...new Set([...allSections, ...explicitSections])];
+    return combined;
   }
 
   static processSection(section, markets, event, includeOdds) {
+    const processMarket = (market) => {
+      if (!market?.id || !market?.name) return;
+      
+      const marketId = market.id.toString();
+      let marketName = market.name;
+
+      if (event.home) {
+        marketName = marketName.replace(new RegExp(this.escapeRegExp(event.home), 'g'), 'Home');
+      }
+      if (event.away) {
+        marketName = marketName.replace(new RegExp(this.escapeRegExp(event.away), 'g'), 'Away');
+      }
+
+      const marketKey = `${marketId}_${marketName}`;
+
+      if (!markets[marketKey]) {
+        markets[marketKey] = {
+          id: marketId,
+          name: marketName,
+          leagues: [],
+          odds: null
+        };
+      }
+
+      const leagueInfo = {
+        id: event.eventId,
+        name: event.leagueId
+      };
+
+      if (!markets[marketKey].leagues.some(l => l.id === leagueInfo.id)) {
+        markets[marketKey].leagues.push(leagueInfo);
+      }
+
+      if (includeOdds && !markets[marketKey].odds) {
+        const extracted = this.extractOdds(market);
+        if (Object.keys(extracted).length > 0) {
+          markets[marketKey].odds = extracted;
+        }
+      }
+    };
+
+    // Process top-level markets
     for (const marketData of Object.values(section.sp)) {
       if (!marketData) continue;
 
-      if (marketData.id && marketData.name) {
-        this.addMarket(marketData, markets, event, includeOdds);
-      } else {
-        for (const subMarket of Object.values(marketData)) {
-          if (subMarket?.id && subMarket?.name) {
-            this.addMarket(subMarket, markets, event, includeOdds);
-          }
+      // Handle container markets (with sub-markets)
+      if (marketData.sp && typeof marketData.sp === 'object') {
+        for (const subMarket of Object.values(marketData.sp)) {
+          processMarket(subMarket);
         }
+      } 
+      // Handle regular markets
+      else {
+        processMarket(marketData);
       }
     }
-  }
-
-  static addMarket(marketData, markets, event, includeOdds) {
-    const marketId = marketData.id.toString();
-    let marketName = marketData.name;
-
-    if (event.home) {
-      marketName = marketName.replace(new RegExp(this.escapeRegExp(event.home), 'g'), 'Home');
-    }
-    if (event.away) {
-      marketName = marketName.replace(new RegExp(this.escapeRegExp(event.away), 'g'), 'Away');
-    }
-
-    const marketKey = `${marketId}_${marketName}`;
-
-    if (!markets[marketKey]) {
-      markets[marketKey] = {
-        id: marketId,
-        name: marketName,
-        leagues: [],
-        odds: null
-      };
-    }
-
-    const leagueInfo = {
-      id: event.eventId,
-      name: event.leagueId
-    };
-
-    if (!markets[marketKey].leagues.some(l => l.id === leagueInfo.id)) {
-      markets[marketKey].leagues.push(leagueInfo);
-    }
-    if (!markets[marketKey].odds) {
-      const extracted = this.extractOdds(marketData);
-      if (Object.keys(extracted).length > 0) {
-        markets[marketKey].odds = extracted;
-      }
-    }
-    
-
   }
 
   static extractOdds(marketData) {
@@ -148,8 +161,10 @@ exports.TennisPreMatchOdds = async (req, res) => {
       })
       .filter(Boolean);
 
-    // Step 4: Process markets
+    // Step 4: Process markets with debug logging
+    console.log('Processing', enrichedEvents.length, 'events');
     const processedMarkets = TennisPreMatchMarketProcessor.process(enrichedEvents);
+    console.log('Found', processedMarkets.length, 'markets');
     
     // Step 5: Prepare response
     const responseData = {
