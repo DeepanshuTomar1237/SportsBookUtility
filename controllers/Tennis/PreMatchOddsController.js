@@ -160,11 +160,11 @@ exports.TennisPreMatchOdds = async (req, res) => {
     };
 
     // Step 6: Update database
-    // await PreMatchMarket.findOneAndUpdate(
-    //   { id: TENNIS_CONFIG.id },
-    //   responseData,
-    //   { upsert: true, new: true }
-    // );
+    await PreMatchMarket.findOneAndUpdate(
+      { id: TENNIS_CONFIG.id },
+      responseData,
+      { upsert: true, new: true }
+    );
     
     // Step 7: Send response
     res.json(responseData);

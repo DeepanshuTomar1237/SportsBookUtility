@@ -11,7 +11,7 @@ exports.LiveICEMatchMarket = async (req, res) => {
 
         const iceHockeyData = {
             ...processedData,
-            sportId: 4,
+            sportId: 17,
             sportName: "Ice Hockey",
             name: "Ice Hockey Markets",
             marketKey: `ice_hockey_${eventIds.join('_')}_${Date.now()}`
