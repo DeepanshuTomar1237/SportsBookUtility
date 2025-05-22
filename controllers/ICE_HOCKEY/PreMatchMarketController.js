@@ -1,27 +1,19 @@
-const axios = require('axios');
 const IceHockeyPreMatchMarket = require('../../models/ICE_HOCKEY/PreMatchMarket');
 const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
 const { TARGET_FIS_HOCKEY } = require('../../constants/bookmakers');
+const { fetchBet365Data } = require('../../utils/api');
 
 exports.IceHockeyPreMatchMarket = async (req, res) => {
   try {
-    const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
-      params: {
-        token: '72339-5QJh8lscw8VTIY',
-        FI: TARGET_FIS_HOCKEY.join(',')
-      },
-      paramsSerializer: params =>
-        Object.entries(params)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&')
-    });
+    // Fetch data using centralized API utility
+    const responseData = await fetchBet365Data(TARGET_FIS_HOCKEY);
 
-    if (!response.data.results || response.data.results.length === 0) {
+    if (!responseData.results || responseData.results.length === 0) {
       return res.status(404).json({ error: 'No events found' });
     }
 
     // Filter events by target FIs and process markets
-    const filteredEvents = response.data.results.filter(event => 
+    const filteredEvents = responseData.results.filter(event => 
       event.FI && TARGET_FIS_HOCKEY.includes(event.FI.toString())
     );
 
@@ -59,7 +51,7 @@ exports.IceHockeyPreMatchMarket = async (req, res) => {
   } catch (error) {
     console.error('Error:', error.message);
     res.status(500).json({ 
-      error: 'Failed to fetch data from Bet365 API',
+      error: 'Failed to process Ice Hockey markets',
       details: error.message
     });
   }
