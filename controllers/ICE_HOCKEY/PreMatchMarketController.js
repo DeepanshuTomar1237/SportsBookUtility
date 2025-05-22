@@ -1,14 +1,14 @@
 const axios = require('axios');
 const IceHockeyPreMatchMarket = require('../../models/ICE_HOCKEY/PreMatchMarket');
+const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
+const { TARGET_FIS_HOCKEY } = require('../../constants/bookmakers');
 
 exports.IceHockeyPreMatchMarket = async (req, res) => {
   try {
-    const targetFIs = ['173452579', '173452585', '173452576', '173452593', '174209613'];
-
     const response = await axios.get('https://api.b365api.com/v3/bet365/prematch', {
       params: {
         token: '72339-5QJh8lscw8VTIY',
-        FI: targetFIs.join(',')
+        FI: TARGET_FIS_HOCKEY.join(',')
       },
       paramsSerializer: params =>
         Object.entries(params)
@@ -20,45 +20,23 @@ exports.IceHockeyPreMatchMarket = async (req, res) => {
       return res.status(404).json({ error: 'No events found' });
     }
 
-    const marketMap = new Map();
+    // Filter events by target FIs and process markets
+    const filteredEvents = response.data.results.filter(event => 
+      event.FI && TARGET_FIS_HOCKEY.includes(event.FI.toString())
+    );
 
-    for (const event of response.data.results) {
-      if (!event.FI || !targetFIs.includes(event.FI.toString())) continue;
-
-      for (const [sectionName, sectionData] of Object.entries(event)) {
-        if (typeof sectionData !== 'object' || sectionName === 'FI') continue;
-
-        const sections = Array.isArray(sectionData) ? sectionData : [sectionData];
-        
-        for (const section of sections) {
-          if (!section?.sp) continue;
-          
-          for (const marketData of Object.values(section.sp)) {
-            if (!marketData) continue;
-
-            const marketsToProcess = marketData.id ? [marketData] : Object.values(marketData);
-            
-            for (const market of marketsToProcess) {
-              if (market?.id && market?.name) {
-                const marketId = market.id.toString();
-                if (!marketMap.has(marketId)) {
-                  marketMap.set(marketId, {
-                    id: marketId,
-                    name: market.name
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    // Process markets using the football processor
+    const processedMarkets = processMarkets(filteredEvents, TARGET_FIS_HOCKEY);
+    const marketsArray = Object.values(processedMarkets).map(market => ({
+      id: market.id,
+      name: market.name
+    }));
 
     const sportsData = {
       id: 17,
       name: "IceHockey",
-      count: marketMap.size,
-      markets: Array.from(marketMap.values())
+      count: marketsArray.length,
+      markets: marketsArray
     };
 
     try {
@@ -86,29 +64,3 @@ exports.IceHockeyPreMatchMarket = async (req, res) => {
     });
   }
 };
-function mergeMarketWithOddsPriority(marketData, consolidatedMarkets, oddsSet) {
-  const marketId = marketData.id.toString();
-  const marketName = marketData.name;
-  const marketKey = `${marketId}_${marketName}`;
-
-  // Create market entry if it doesn't exist
-  if (!consolidatedMarkets[marketKey]) {
-    consolidatedMarkets[marketKey] = {
-      id: marketId,
-      name: marketName,
-      odds: []
-    };
-  }
-
-  // Add odds only if none added before and current has odds
-  if (consolidatedMarkets[marketKey].odds.length === 0 && Array.isArray(marketData.odds) && marketData.odds.length > 0) {
-    const odds = marketData.odds.map(odd => ({
-      id: odd.id,
-      odds: odd.odds,
-      header: odd.header,
-      name: odd.name,
-      handicap: odd.handicap 
-    }));
-    consolidatedMarkets[marketKey].odds.push(...odds);
-  }
-}

@@ -1,3 +1,4 @@
+// constants\bookmakers.js
 const TENNIS_EVENTS = {
   '174726738': { home: 'Laia Petretic', away: 'Valeria Bhunu', leagueId: 'ITF M15 Heraklion', id: "13829" },
   '174736958': { home: 'Yunchaokete Bu', away: 'Francesco Passaro', leagueId: 'Challenger Turin', id:"28962" },
@@ -47,8 +48,12 @@ module.exports = {
   ],
 
   TARGET_FIS_HOCKEY: [
-    '173452579', '173452585', '173452576'
+    // '173452579', '173452585', '173452576',
+    '173452579', '173452585', '173452576', '173452593', '174209613'
   ]
 };
 
 
+
+
+                                                                                                                                                                                                                                                                                    
