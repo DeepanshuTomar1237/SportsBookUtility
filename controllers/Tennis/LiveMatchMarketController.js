@@ -5,7 +5,7 @@ const { TENNIS_LIVE_EVENT_IDS } = require('../../constants/bookmakers');
 
 exports.TennisLiveMatchMarket = async (req, res) => {
   try {
-    const eventIds = req.query.evIds?.split(',') || TENNIS_LIVE_EVENT_IDS;
+    const eventIds =  TENNIS_LIVE_EVENT_IDS;
     const result = await processLiveMatchMarket(eventIds);
   
     result.marketKey = `football_${eventIds.join('_')}_${Date.now()}`;

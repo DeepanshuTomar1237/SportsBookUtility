@@ -5,25 +5,34 @@ const { FOOTBALL_DEFAULT_EVENT_IDS } = require('../../constants/bookmakers');
 
 exports.LiveMatchMarket = async (req, res) => {
   try {
-    const eventIds = req.query.evIds?.split(',') || FOOTBALL_DEFAULT_EVENT_IDS;
+    const eventIds = FOOTBALL_DEFAULT_EVENT_IDS;
     const result = await processLiveMatchMarket(eventIds);
-  
-    result.marketKey = `football_${eventIds.join('_')}_${Date.now()}`;
     
+    result.marketKey = `football_${eventIds.join('_')}_${Date.now()}`;
+    result.sportId = 1;
+    result.sportName = "Football";
+    result.name = "Football Markets";
+
     const savedMarket = await FootballMarket.findOneAndUpdate(
       { marketKey: result.marketKey },
       result,
-      { upsert: true, new: true }
+      { 
+        upsert: true, 
+        new: true,
+        select: '-_id' // Explicitly exclude _id from the returned document
+      }
     );
 
+    // Convert to plain object and remove any potential _id
+    const responseData = savedMarket.toObject();
+    delete responseData._id;
+
     res.json([{
-      id: savedMarket.sportId,
-      name: savedMarket.name,
-      count: savedMarket.count,
-      markets: savedMarket.markets
+      count: responseData.count || 0,
+      markets: responseData.markets || []
     }]);
   } catch (error) {
-    console.error('Controller Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('FootballController Error:', error);
+    res.status(500).json([{ count: 0, markets: [] }]);
   }
 };

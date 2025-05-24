@@ -42,12 +42,12 @@ const processLiveMatchMarket = async (eventIds) => {
   await Promise.all(eventIds.map((id) => fetchMarketData(id, marketMap)));
 
   return {
-    sportId: 1,
-    name: "Football",
+    // sportId: 1,
+    // name: "Football",
     count: marketMap.size,
     markets: Array.from(marketMap, ([name, id]) => ({ id, name })),
-    eventIds
+    // eventIds
   };
 };
 
-module.exports = { processLiveMatchMarket };
+module.exports = { processLiveMatchMarket };  

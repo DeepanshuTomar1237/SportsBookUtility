@@ -3,19 +3,19 @@ const mongoose = require('mongoose');
 const marketSchema = new mongoose.Schema({
   id: { type: String, required: true },
   name: { type: String, required: true }
-});
+}, { _id: false }); // This is the key change - disables _id for subdocuments
 
 const footballMarketSchema = new mongoose.Schema({
+  sportId: { type: Number },
+  sportName: { type: String },
+  name: { type: String },
   count: { type: Number, required: true },
   markets: { type: [marketSchema], required: true },
-  marketKey: { type: String, required: true, unique: true, select: false }
-}, { versionKey: false });
+  marketKey: { type: String, required: true, unique: true }
+}, { 
+  versionKey: false, // Disables the __v field
+  toJSON: { virtuals: true }, 
+  toObject: { virtuals: true } 
+});
 
-// Keep at least the marketKey index since you're using it for upserts
-footballMarketSchema.index({ marketKey: 1 }, { unique: true });
-
-// Only keep other indexes if you actually query by these fields frequently
-// footballMarketSchema.index({ sportId: 1 });  // Only if you query by sportId
-// footballMarketSchema.index({ eventIds: 1 }); // Only if you query by eventIds
-
-module.exports = mongoose.model('LiveMatchmarket', footballMarketSchema);
+module.exports = mongoose.model('FootballLiveMatchMarket', footballMarketSchema);
