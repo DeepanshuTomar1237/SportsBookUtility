@@ -28,4 +28,11 @@ router.get('/ICE_HOCKEY/pre-match/market/list', IceHockeyPreMatchMarket);
 router.get('/ICE_HOCKEY/pre-match/market/odds', IceHockeyPreMatchOdds);
 router.get('/ICE_HOCKEY/live-match/market/list', LiveICEMatchMarket);
 
+
+// Cricket Routes
+router.get('/cricket/pre-match/market/list', CricketPreMatchMarket);
+router.get('/cricket/pre-match/market/odds', CricketPreMatchOdds);
+router.get('/cricket/live-match/market/list', CricketLiveMatchMarket);
+
+
 module.exports = router;
