@@ -12,6 +12,9 @@ const { TennisLiveMatchMarket } = require('../controllers/Tennis/LiveMatchMarket
 const { IceHockeyPreMatchMarket } = require("../controllers/ICE_HOCKEY/PreMatchMarketController");
 const { IceHockeyPreMatchOdds } = require("../controllers/ICE_HOCKEY/PreMatchOddsController");
 const { LiveICEMatchMarket } = require("../controllers/ICE_HOCKEY/LiveMatchMarketController");
+const { CricketPreMatchMarket } = require('../controllers/Cricket/PreMatchMarketController');
+// const { CricketPreMatchOdds } = require('../controllers/Cricket/PreMatchOddsController');    
+// const { CricketLiveMatchMarket } = require('../controllers/Cricket/LiveMatchMarketController');
 
 // Football Routes
 router.get('/football/pre-match/market/list', PreMatchMarket);
@@ -31,8 +34,8 @@ router.get('/ICE_HOCKEY/live-match/market/list', LiveICEMatchMarket);
 
 // Cricket Routes
 router.get('/cricket/pre-match/market/list', CricketPreMatchMarket);
-router.get('/cricket/pre-match/market/odds', CricketPreMatchOdds);
-router.get('/cricket/live-match/market/list', CricketLiveMatchMarket);
+// router.get('/cricket/pre-match/market/odds', CricketPreMatchOdds);
+// router.get('/cricket/live-match/market/list', CricketLiveMatchMarket);
 
 
 module.exports = router;
