@@ -1,4 +1,3 @@
-// models\ICE_HOCKEY\PreMatchOdds.js
 const mongoose = require('mongoose');
 
 const OddSchema = new mongoose.Schema({
@@ -15,7 +14,7 @@ const MarketSchema = new mongoose.Schema({
   odds: [OddSchema]
 });
 
-const IceHockeyPreMatchOddsSchema = new mongoose.Schema({
+const CricketPreMatchOddsSchema = new mongoose.Schema({
   id: { type: Number, required: true, unique: true },
   name: { type: String, required: true },
   count: { type: Number, required: true },
@@ -23,12 +22,11 @@ const IceHockeyPreMatchOddsSchema = new mongoose.Schema({
   lastUpdated: { type: Date, default: Date.now }
 }, { 
   timestamps: true,
-  collection: 'ice_hockey_prematch_odds'
+  collection: 'cricket_prematch_odds'
 });
 
-// Create indexes (removed duplicate index definitions)
-IceHockeyPreMatchOddsSchema.index({ id: 1 });
-IceHockeyPreMatchOddsSchema.index({ 'markets.id': 1 });
+// Create indexes
+CricketPreMatchOddsSchema.index({ id: 1 });
+CricketPreMatchOddsSchema.index({ 'markets.id': 1 });
 
-// Export the model directly
-module.exports = mongoose.model('IceHockeyPreMatchOdds', IceHockeyPreMatchOddsSchema);
+module.exports = mongoose.model('CricketPreMatchOdds', CricketPreMatchOddsSchema);
