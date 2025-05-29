@@ -1,4 +1,4 @@
-// models\ICE_HOCKEY\LiveMatchMarket.js
+// models/Cricket/LiveMatchMarket.js
 const mongoose = require('mongoose');
 
 const LiveMatchMarketSchema = new mongoose.Schema({
@@ -12,4 +12,4 @@ const LiveMatchMarketSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('IceHockeyMarket', LiveMatchMarketSchema);
+module.exports = mongoose.model('CricketMarket', LiveMatchMarketSchema);
