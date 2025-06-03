@@ -36,7 +36,7 @@ exports.IceHockeyPreMatchMarket = async (req, res) => {
       const result = await IceHockeyPreMatchMarket.findOneAndUpdate(
         { sportId: 17 },
         sportsData,
-        { upsert: true, new: true }
+        { upsert: true, new: true } 
       );
       
       console.log('Ice Hockey prematch markets successfully stored in MongoDB');

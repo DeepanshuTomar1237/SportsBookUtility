@@ -1,5 +1,6 @@
 // controllers\ICE_HOCKEY\LiveMatchMarketController.js
 require('dotenv').config();
+// const IceHockeyLiveMarket = require('../../models/ICE_HOCKEY/LiveMatchMarket');
 const IceHockeyLiveMarket = require('../../models/ICE_HOCKEY/LiveMatchMarket');
 const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMatchMarketProcessor');
 const { ICE_HOCKEY_DEFAULT_EVENT_IDS } = require('../../constants/bookmakers');
@@ -14,7 +15,8 @@ exports.LiveICEMatchMarket = async (req, res) => {
     result.sportName = "Ice Hockey";
     result.name = "Ice Hockey Markets";
 
-    const savedMarket = await FootballMarket.findOneAndUpdate(
+    const savedMarket = await IceHockeyLiveMarket.findOneAndUpdate(
+
         { marketKey: result.marketKey },
         result,
         { upsert: true, new: true, projection: { _id: 0 } } // Add projection to exclude _id

@@ -23,8 +23,8 @@ const fetchMarketData = async (eventId, marketMap) => {
     markets.forEach((market) => {
       if (!market?.name) return;
 
-      let marketId = market.market ||
-                    (market.Odds?.[0]?.market) 
+      const marketId = market.market || market.id;
+
 
       if (!marketMap.has(market.name)) {
         marketMap.set(market.name, marketId);
@@ -43,7 +43,7 @@ const processLiveMatchMarket = async (eventIds) => {
 
   return {
     // sportId: 1,
-    // name: "Football",
+    // name: "Football",fv
     count: marketMap.size,
     markets: Array.from(marketMap, ([name, id]) => ({ id, name })),
     // eventIds

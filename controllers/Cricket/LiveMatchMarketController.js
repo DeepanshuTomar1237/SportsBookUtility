@@ -1,12 +1,12 @@
 // controllers/Cricket/LiveMatchMarketController.js
 require('dotenv').config();
 const CricketLiveMarket = require('../../models/Cricket/LiveMatchMarket');
-const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMatchMarketProcessor'); // Adjust if Cricket has a separate processor
+const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMAtchMarketUpdate'); // Adjust if Cricket has a separate processor
 const { CRICKET_LIVE_EVENT_IDS } = require('../../constants/bookmakers');
 
 exports.LiveCricketMatchMarket = async (req, res) => {
   try {
-    const eventIds = CRICKET_DEFAULT_EVENT_IDS;
+    const eventIds = CRICKET_LIVE_EVENT_IDS;
     const result = await processLiveMatchMarket(eventIds);
 
     result.marketKey = `cricket_${eventIds.join('_')}_${Date.now()}`;
