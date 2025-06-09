@@ -1,6 +1,8 @@
+// controllers\CombinedSportsOddsController.js
 // Import database models for football and ice hockey odds
 const PreMatchOdds = require('../models/Football/PreMatchOdds');
 const IceHockeyPreMatchOdds = require('../models/ICE_HOCKEY/PreMatchOdds');
+const CommonOdds = require('../models/CommonFootballandIceHockeyOdds');
 
 // This function combines odds data from football and ice hockey sports
 exports.getCombinedSportsOdds = async (req, res) => {
@@ -89,6 +91,19 @@ exports.getCombinedSportsOdds = async (req, res) => {
       });
     }
 
+    await Promise.all(
+        combinedMarkets.map(async market => {
+          await CommonOdds.findOneAndUpdate(
+            {
+              football_market_id: market.football_market_id,
+              ice_hockey_market_id: market.ice_hockey_market_id
+            },
+            market,
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+          );
+        })
+      );
+      
     // Return the successfully combined data
     res.json(combinedMarkets);
 
