@@ -10,7 +10,7 @@ const FootballMarket = require('../../../models/Football/LiveMatchMarket'); // T
 let mongoServer; // This will hold our in-memory MongoDB server
 
 // Fake/mock the processor function to avoid calling the real external service
-jest.mock('../../../market-processors/Football/LiveMatchMarketProcessor', () => ({
+jest.mock('../../../market-processors/Common/LiveMatchMarketProcessor', () => ({
   processLiveMatchMarket: jest.fn() // Create a fake function
 }));
 

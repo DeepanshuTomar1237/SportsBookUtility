@@ -19,7 +19,7 @@ const { TARGET_FIS } = require('../../../constants/bookmakers');
 // Tell Jest to create fake versions of the imported files (no real API/database calls)
 jest.mock('../../../utils/api');
 jest.mock('../../../models/Football/PreMatchOdds');
-jest.mock('../../../market-processors/Football/PreMatchOddsProcessor');
+jest.mock('../../../market-processors/Common/PreMatchOddsProcessor');
 
 describe('Football PreMatchOdds Controller', () => {
   // After each test, clear all mock data so tests stay independent
