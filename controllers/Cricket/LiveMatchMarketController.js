@@ -9,7 +9,8 @@ exports.LiveCricketMatchMarket = async (req, res) => {
     const eventIds = CRICKET_LIVE_EVENT_IDS;
     const result = await processLiveMatchMarket(eventIds);
 
-    result.marketKey = `cricket_${eventIds.join('_')}_${Date.now()}`;
+   
+    result.marketKey = `cricket_${eventIds.join('_')}`;
     result.sportId = 3; // Assuming 3 is the sport ID for Cricket
     result.sportName = "Cricket";
     result.name = "Cricket Markets";
