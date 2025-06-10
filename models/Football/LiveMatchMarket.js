@@ -1,21 +1,15 @@
+// models\Football\LiveMatchMarket.js
 const mongoose = require('mongoose');
 
-const marketSchema = new mongoose.Schema({
-  id: { type: String, required: true },
-  name: { type: String, required: true }
-}, { _id: false }); // This is the key change - disables _id for subdocuments
-
-const footballMarketSchema = new mongoose.Schema({
-  sportId: { type: Number },
-  sportName: { type: String },
-  name: { type: String },
-  count: { type: Number, required: true },
-  markets: { type: [marketSchema], required: true },
-  marketKey: { type: String, required: true, unique: true }
-}, { 
-  versionKey: false, // Disables the __v field
-  toJSON: { virtuals: true }, 
-  toObject: { virtuals: true } 
+const FootballLiveMatchMarketSchema = new mongoose.Schema({
+  marketKey: { type: String, required: true, unique: true }, // Unique key for identifying each market set
+  sportId: { type: Number, required: true },                  // ID representing the sport (e.g., 1 for football)
+  name: { type: String, required: true },                     // Name for display (e.g., "Football Markets")
+  sportName: { type: String },                                // Optional sport name (e.g., "Football")
+  count: { type: Number, required: true },                    // Number of markets
+  markets: { type: Array, required: true },                   // List of market objects
+  eventIds: { type: Array, required: true },                  // List of associated event IDs
+  createdAt: { type: Date, default: Date.now }                // Timestamp when this record is created
 });
 
-module.exports = mongoose.model('FootballLiveMatchMarket', footballMarketSchema);
+module.exports = mongoose.model('FootballLiveMatchMarket', FootballLiveMatchMarketSchema);

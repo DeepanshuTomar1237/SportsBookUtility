@@ -1,6 +1,7 @@
 // tests\utils\api.test.js
 
 // Import the function we want to test from our code
+const { update } = require('lodash');
 const { fetchBet365Data } = require('../../utils/api');
 // Import axios - a tool for making internet requests
 const axios = require('axios');
@@ -122,3 +123,4 @@ const paramsSerializer = callArgs.paramsSerializer;
     expect(serialized).toBe('key1=value%201&key2=value%262');
   });
 });
+
