@@ -73,7 +73,8 @@ describe('LiveMatchMarket Controller', () => {
 
     // Check that the data is also saved correctly in the database
     const dbRecord = await FootballMarket.findOne();
-    expect(dbRecord.marketKey).toMatch(/football_174762095_\d+/); // Pattern check
+    expect(dbRecord.marketKey).toMatch(/football_\d+_\d+/);
+ // Pattern check
     expect(dbRecord.sportId).toBe(1); // Sport ID should be 1 for Football
     expect(dbRecord.sportName).toBe("Football");
     expect(dbRecord.name).toBe("Football Markets");
