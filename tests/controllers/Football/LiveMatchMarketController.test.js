@@ -74,11 +74,49 @@ describe('LiveMatchMarket Controller', () => {
     // Check that the data is also saved correctly in the database
     const dbRecord = await FootballMarket.findOne();
     expect(dbRecord.marketKey).toMatch(/football_\d+_\d+/);
+    // expect(dbRecord.marketKey).toMatch(/football(_\d+){1,2}/);
+    // expect(dbRecord.marketKey).toMatch(/football_174762095_\d+/);
+
  // Pattern check
     expect(dbRecord.sportId).toBe(1); // Sport ID should be 1 for Football
     expect(dbRecord.sportName).toBe("Football");
     expect(dbRecord.name).toBe("Football Markets");
   });
+
+  it('should not create duplicate market entries with the same marketKey', async () => {
+    const fixedTimestamp = 1718025600000;
+    jest.spyOn(Date, 'now').mockImplementation(() => fixedTimestamp);
+  
+    processLiveMatchMarket.mockResolvedValue(mockMarketData);
+  
+    // First request
+    await request(app).get('/api/football/live-match/market/list').expect(200);
+  
+    // Second request (with same timestamp and mock data)
+    const response = await request(app).get('/api/football/live-match/market/list');
+    expect(response.statusCode).toBe(200);
+  
+    const allRecords = await FootballMarket.find({});
+    expect(allRecords.length).toBe(1); // Only one should be saved
+  
+    jest.restoreAllMocks(); // Optional: clean up Date.now mock
+  });
+  
+  it('should handle missing markets field by returning empty array', async () => {
+    // Mock processor to return data without markets field
+    processLiveMatchMarket.mockResolvedValue({ count: 0 }); // no markets field
+    
+    const response = await request(app)
+      .get('/api/football/live-match/market/list')
+      .expect(200);
+  
+    // Verify the response includes empty markets array
+    expect(response.body).toEqual([{
+      count: 0,
+      markets: []
+    }]);
+  });
+
 
   //  Test: API should handle the case when there is no market data
   it('should handle empty market data', async () => {

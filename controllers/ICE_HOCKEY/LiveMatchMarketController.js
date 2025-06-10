@@ -24,7 +24,7 @@ exports.LiveICEMatchMarket = async (req, res) => {
 
     res.json([{
       count: savedMarket.count || 0,
-      markets: savedMarket.markets || []
+      markets: savedMarket.markets 
     }]);
   } catch (error) {
     console.error('IceHockeyController Error:', error);

@@ -30,7 +30,7 @@ exports.LiveMatchMarket = async (req, res) => {
 
     res.json([{
       count: responseData.count || 0,
-      markets: responseData.markets || []
+      markets: responseData.markets
     }]);
   } catch (error) {
     console.error('FootballController Error:', error);

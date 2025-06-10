@@ -22,48 +22,118 @@ describe('Ice Hockey PreMatchOdds Controller', () => {
 
   // Test 1: Everything works correctly - happy path
   test('should return processed ice hockey pre-match odds', async () => {
-    // 1. Setup fake data that simulates API response
-    const mockRawData = [{ 
-      eventId: '123', 
-      name: 'Team A vs Team B',
-      odds: { home: 1.8, away: 2.1 }
-    }];
-
-    // 2. Setup how we expect the data to look after processing
+    const mockRawData = [{ eventId: '123', name: 'Team A vs Team B', odds: { home: 1.8, away: 2.1 } }];
+  
     const mockProcessedData = {
       PRE_MATCH_MARKETS: [
-        { id: '1', name: 'Moneyline', odds: [{ home: 1.8, away: 2.1 }] }
+        { id: '1', name: 'Moneyline', odds: [{ id: 'odd1', odds: '1.8', header: 'Home', name: 'Team A', handicap: null, team: 'home' }] }
       ],
       total_markets: 1
     };
-
-    // 3. Setup what we expect to be saved in database
+  
     const mockSavedData = {
       id: 17,
       name: 'IceHockey',
       count: 1,
       markets: mockProcessedData.PRE_MATCH_MARKETS
     };
-
-    // 4. Configure our fake functions to return this data
-    fetchBet365Data.mockResolvedValue(mockRawData); // Fake API returns our mock data
-    PreMatchOddsProcessor.process.mockReturnValue(mockProcessedData); // Fake processing
-    IceHockeyPreMatchOdds.findOneAndUpdate.mockResolvedValue(mockSavedData); // Fake DB save
-
-    // 5. Create fake HTTP request and response objects
+  
+    fetchBet365Data.mockResolvedValue(mockRawData);
+    PreMatchOddsProcessor.process.mockReturnValue(mockProcessedData);
+    IceHockeyPreMatchOdds.findOneAndUpdate.mockResolvedValue(mockSavedData);
+  
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  
     const req = httpMocks.createRequest();
     const res = httpMocks.createResponse();
-
-    // 6. Call the actual controller function with our fake request/response
+  
     await IceHockeyPreMatchOddsController.IceHockeyPreMatchOdds(req, res);
-
-    // 7. Check the response we got back
+  
     const responseData = res._getJSONData();
+  
+    expect(res.statusCode).toBe(200);
+    expect(responseData).toEqual([mockSavedData]);
+    expect(fetchBet365Data).toHaveBeenCalledWith(TARGET_FIS_HOCKEY);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Successfully stored'));
+  
+    consoleSpy.mockRestore();
+  });
+  
+
+  // Add this new test to cover the empty markets case
+test('should handle empty markets array gracefully', async () => {
+    const mockRawData = [{ eventId: '999', odds: null }];
+    const mockProcessedData = {
+      PRE_MATCH_MARKETS: [],
+      total_markets: 0
+    };
+  
+    fetchBet365Data.mockResolvedValue(mockRawData);
+    PreMatchOddsProcessor.process.mockReturnValue(mockProcessedData);
+    IceHockeyPreMatchOdds.findOneAndUpdate.mockResolvedValue({});
+  
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+  
+    await IceHockeyPreMatchOddsController.IceHockeyPreMatchOdds(req, res);
+  
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toEqual([{
+      id: 17,
+      name: 'IceHockey',
+      count: 0,
+      markets: []
+    }]);
+  });
+  
+  // Enhanced database error test to verify logging
+  test('should log database errors but still return data', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     
-    // 8. Verify everything worked correctly:
-    expect(res.statusCode).toBe(200); // Should return 200 (success)
-    expect(responseData).toEqual([mockSavedData]); // Response should match our expected data
-    expect(fetchBet365Data).toHaveBeenCalledWith(TARGET_FIS_HOCKEY); // Should have fetched hockey events
+    const mockRawData = [{ eventId: '789', odds: { home: 1.9, away: 2.0 } }];
+    const mockProcessedData = {
+      PRE_MATCH_MARKETS: [{ id: '2', name: 'Total Goals', odds: [] }],
+      total_markets: 1
+    };
+  
+    fetchBet365Data.mockResolvedValue(mockRawData);
+    PreMatchOddsProcessor.process.mockReturnValue(mockProcessedData);
+    IceHockeyPreMatchOdds.findOneAndUpdate.mockRejectedValue(new Error('DB full'));
+  
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+  
+    await IceHockeyPreMatchOddsController.IceHockeyPreMatchOdds(req, res);
+  
+    // Verify error was logged
+    expect(consoleSpy).toHaveBeenCalledWith('MongoDB error:', 'DB full');
+    
+    // Verify response still succeeds
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toEqual([{
+      id: 17,
+      name: 'IceHockey',
+      count: 1,
+      markets: mockProcessedData.PRE_MATCH_MARKETS
+    }]);
+  
+    consoleSpy.mockRestore();
+  });
+  
+  // Enhanced error format test
+  test('should return properly formatted error response', async () => {
+    fetchBet365Data.mockRejectedValue(new Error('Network failure'));
+  
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+  
+    await IceHockeyPreMatchOddsController.IceHockeyPreMatchOdds(req, res);
+  
+    expect(res.statusCode).toBe(500);
+    expect(res._getJSONData()).toEqual({
+      error: 'Network failure',
+      details: 'Network failure'
+    });
   });
 
   // Test 2: When the data processing fails (invalid data from API)
