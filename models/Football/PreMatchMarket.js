@@ -14,5 +14,5 @@ const SportsDataSchema = new mongoose.Schema({
   markets: [MarketSchema]                        // Array of markets
 }, { timestamps: true });
 
-module.exports = mongoose.model('PreMatchmarket', SportsDataSchema);
+module.exports = mongoose.model('FootballPreMatchmarket', SportsDataSchema);
 
