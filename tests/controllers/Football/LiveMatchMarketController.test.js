@@ -15,7 +15,7 @@ jest.mock('../../../market-processors/Football/LiveMatchMarketProcessor', () => 
 }));
 
 // Import the mocked processor
-const { processLiveMatchMarket } = require('../../../market-processors/Football/LiveMatchMarketProcessor');
+const { processLiveMatchMarket } = require('../../../market-processors/Common/LiveMatchMarketProcessor');
 
 // Runs before all tests begin
 beforeAll(async () => {

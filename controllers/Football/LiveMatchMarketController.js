@@ -1,7 +1,7 @@
 // controllers\Football\LiveMatchMarketController.js
 require('dotenv').config();
 const FootballMarket = require('../../models/Football/LiveMatchMarket');
-const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMatchMarketProcessor');
+const { processLiveMatchMarket } = require('../../market-processors/Common/LiveMatchMarketProcessor');
 const { FOOTBALL_DEFAULT_EVENT_IDS } = require('../../constants/bookmakers');
 
 exports.LiveMatchMarket = async (req, res) => {

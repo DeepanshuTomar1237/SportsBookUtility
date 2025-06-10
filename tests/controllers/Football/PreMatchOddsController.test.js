@@ -11,7 +11,7 @@ const PreMatchOdds = require('../../../models/Football/PreMatchOdds');
 const { fetchBet365Data } = require('../../../utils/api');
 
 // Import the function that processes the raw data
-const PreMatchOddsProcessor = require('../../../market-processors/Football/PreMatchOddsProcessor');
+const PreMatchOddsProcessor = require('../../../market-processors/Common/PreMatchOddsProcessor');
 
 // Import the list of event IDs for which we want data
 const { TARGET_FIS } = require('../../../constants/bookmakers');

@@ -1,5 +1,5 @@
 const CricketPreMatchOdds = require('../../models/Cricket/PreMatchOdds');
-const PreMatchOddsProcessor = require('../../market-processors/Football/PreMatchOddsProcessor');
+const PreMatchOddsProcessor = require('../../market-processors/Common/PreMatchOddsProcessor');
 const { fetchBet365Data } = require('../../utils/api');
 const { TARGET_FIS_CRICKET } = require('../../constants/bookmakers');
 

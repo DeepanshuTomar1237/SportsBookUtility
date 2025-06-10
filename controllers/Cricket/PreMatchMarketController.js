@@ -1,6 +1,6 @@
 // controllers\Cricket\PreMatchMarketController.js
 const CricketPreMatchMarket = require('../../models/CRICKET/PreMatchMarket');
-const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
+const { processMarkets } = require('../../market-processors/Common/PreMatchMarketProcessor');
 const { TARGET_FIS_CRICKET } = require('../../constants/bookmakers');
 const { fetchBet365Data } = require('../../utils/api');
 

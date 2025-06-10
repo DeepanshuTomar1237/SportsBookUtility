@@ -5,7 +5,7 @@
 // - Default football competitions to track
 // - Environment variables (secret keys/config)
 const { fetchBet365Data } = require('../../utils/api');
-const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
+const { processMarkets } = require('../../market-processors/Common/PreMatchMarketProcessor');
 const { formatSportsData } = require('../../utils/dataFormatter');
 const PreMatchMarket = require('../../models/Football/PreMatchMarket');
 const { TARGET_FIS } = require('../../constants/bookmakers');

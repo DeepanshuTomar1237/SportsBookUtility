@@ -1,6 +1,6 @@
 require('dotenv').config();
 const TennisLiveMarket = require('../../models/Tennis/LiveMatchMarket');
-const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMatchMarketProcessor');
+const { processLiveMatchMarket } = require('../../market-processors/Common/LiveMatchMarketProcessor');
 const { TENNIS_LIVE_EVENT_IDS } = require('../../constants/bookmakers');
 
 exports.TennisLiveMatchMarket = async (req, res) => {

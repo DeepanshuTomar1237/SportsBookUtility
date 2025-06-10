@@ -2,7 +2,7 @@
 require('dotenv').config();
 // const IceHockeyLiveMarket = require('../../models/ICE_HOCKEY/LiveMatchMarket');
 const IceHockeyLiveMarket = require('../../models/ICE_HOCKEY/LiveMatchMarket');
-const { processLiveMatchMarket } = require('../../market-processors/Football/LiveMatchMarketProcessor');
+const { processLiveMatchMarket } = require('../../market-processors/Common/LiveMatchMarketProcessor');
 const { ICE_HOCKEY_DEFAULT_EVENT_IDS } = require('../../constants/bookmakers');
 
 exports.LiveICEMatchMarket = async (req, res) => {

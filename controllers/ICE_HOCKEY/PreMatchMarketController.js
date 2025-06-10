@@ -1,6 +1,6 @@
 // controllers\ICE_HOCKEY\PreMatchMarketController.js
 const IceHockeyPreMatchMarket = require('../../models/ICE_HOCKEY/PreMatchMarket');
-const { processMarkets } = require('../../market-processors/Football/PreMatchMarketProcessor');
+const { processMarkets } = require('../../market-processors/Common/PreMatchMarketProcessor');
 const { TARGET_FIS_HOCKEY } = require('../../constants/bookmakers');
 const { fetchBet365Data } = require('../../utils/api');
 

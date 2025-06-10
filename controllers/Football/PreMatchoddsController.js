@@ -2,7 +2,7 @@
 // Import necessary tools and files needed for this function to work
 const { fetchBet365Data } = require('../../utils/api'); // Tool to get data from Bet365 website
 const PreMatchOdds = require('../../models/Football/PreMatchOdds'); // Database model for storing match odds
-const PreMatchOddsProcessor = require('../../market-processors/Football/PreMatchOddsProcessor'); // Tool to process the raw data
+const PreMatchOddsProcessor = require('../../market-processors/Common/PreMatchOddsProcessor'); // Tool to process the raw data
 const { TARGET_FIS } = require('../../constants/bookmakers'); // Constant value for the bookmaker we're using
 require('dotenv').config(); // Tool to read environment variables (secret settings)
 

@@ -1,6 +1,6 @@
 // controllers/ICE_HOCKEY/PreMatchOddsController.js
 const IceHockeyPreMatchOdds = require('../../models/ICE_HOCKEY/PreMatchOdds');
-const PreMatchOddsProcessor = require('../../market-processors/Football/PreMatchOddsProcessor');
+const PreMatchOddsProcessor = require('../../market-processors/Common/PreMatchOddsProcessor');
 const { fetchBet365Data } = require('../../utils/api');
 const { TARGET_FIS_HOCKEY } = require('../../constants/bookmakers');
 
