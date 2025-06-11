@@ -32,6 +32,7 @@ exports.IceHockeyPreMatchOdds = async (req, res) => {
             console.log(`Successfully stored ${sportsData.markets.length} Ice Hockey markets`);
         } catch (dbError) {
             console.error('MongoDB error:', dbError.message);
+            
         }
 
         return res.json([sportsData]);

@@ -65,6 +65,7 @@ exports.TennisPreMatchMarket = async (req, res) => {
     res.status(500).json({ 
       error: 'Failed to process tennis prematch data',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      
     });
   }
 };

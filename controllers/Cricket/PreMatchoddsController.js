@@ -1,3 +1,4 @@
+// Controllers\Cricket\PreMatchoddsController.js
 const CricketPreMatchOdds = require('../../models/Cricket/PreMatchOdds');
 const PreMatchOddsProcessor = require('../../market-processors/Common/PreMatchOddsProcessor');
 const { fetchBet365Data } = require('../../utils/api');
@@ -18,7 +19,7 @@ exports.CricketPreMatchOdds = async (req, res) => {
             id: 3, // Cricket ID
             name: 'Cricket',
             count: processedData.total_markets || 0,
-            markets: processedData.PRE_MATCH_MARKETS || []
+            markets: processedData.PRE_MATCH_MARKETS
         };
 
         // Upsert into MongoDB
@@ -31,6 +32,10 @@ exports.CricketPreMatchOdds = async (req, res) => {
             console.log(`Successfully stored ${sportsData.markets.length} Cricket markets`);
         } catch (dbError) {
             console.error('MongoDB error:', dbError.message);
+            return res.status(500).json({ 
+                error: 'Failed to save Cricket odds',
+                details: dbError.message 
+            });
         }
 
         return res.json([sportsData]);

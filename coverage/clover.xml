@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1749621665718" clover="3.2.0">
-  <project timestamp="1749621665718" name="All files">
-    <metrics statements="548" coveredstatements="390" conditionals="216" coveredconditionals="108" methods="78" coveredmethods="49" elements="842" coveredelements="547" complexity="0" loc="548" ncloc="548" packages="17" files="36" classes="36"/>
+<coverage generated="1749633593259" clover="3.2.0">
+  <project timestamp="1749633593259" name="All files">
+    <metrics statements="549" coveredstatements="405" conditionals="214" coveredconditionals="114" methods="78" coveredmethods="52" elements="841" coveredelements="571" complexity="0" loc="549" ncloc="549" packages="17" files="36" classes="36"/>
     <package name="sportsbook">
       <metrics statements="14" coveredstatements="10" conditionals="4" coveredconditionals="1" methods="2" coveredmethods="0"/>
       <file name="server.js" path="C:\Users\admin\Desktop\sportsbook\server.js">
@@ -63,7 +63,7 @@
       </file>
     </package>
     <package name="sportsbook.Controllers.Cricket">
-      <metrics statements="57" coveredstatements="33" conditionals="18" coveredconditionals="6" methods="5" coveredmethods="3"/>
+      <metrics statements="58" coveredstatements="33" conditionals="16" coveredconditionals="6" methods="5" coveredmethods="3"/>
       <file name="LiveMatchMarketController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Cricket\LiveMatchMarketController.js">
         <metrics statements="16" coveredstatements="5" conditionals="4" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="2" count="5" type="stmt"/>
@@ -110,25 +110,26 @@
         <line num="54" count="1" type="stmt"/>
       </file>
       <file name="PreMatchoddsController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Cricket\PreMatchoddsController.js">
-        <metrics statements="18" coveredstatements="5" conditionals="8" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="1" count="5" type="stmt"/>
+        <metrics statements="19" coveredstatements="5" conditionals="6" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="2" count="5" type="stmt"/>
         <line num="3" count="5" type="stmt"/>
         <line num="4" count="5" type="stmt"/>
-        <line num="6" count="5" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="13" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="7" count="5" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="14" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="39" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
       </file>
     </package>
     <package name="sportsbook.Controllers.Football">
@@ -215,9 +216,9 @@
         <line num="15" count="4" type="stmt"/>
         <line num="16" count="4" type="stmt"/>
         <line num="18" count="4" type="stmt"/>
-        <line num="25" count="3" type="stmt"/>
-        <line num="30" count="2" type="stmt"/>
-        <line num="31" count="2" type="stmt"/>
+        <line num="25" count="4" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
       </file>
       <file name="PreMatchMarketController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\ICE_HOCKEY\PreMatchMarketController.js">
         <metrics statements="23" coveredstatements="23" conditionals="6" coveredconditionals="6" methods="3" coveredmethods="3"/>
@@ -262,13 +263,13 @@
         <line num="27" count="4" type="stmt"/>
         <line num="32" count="2" type="stmt"/>
         <line num="34" count="2" type="stmt"/>
-        <line num="37" count="4" type="stmt"/>
-        <line num="39" count="3" type="stmt"/>
+        <line num="38" count="4" type="stmt"/>
         <line num="40" count="3" type="stmt"/>
+        <line num="41" count="3" type="stmt"/>
       </file>
     </package>
     <package name="sportsbook.Controllers.Tennis">
-      <metrics statements="105" coveredstatements="16" conditionals="60" coveredconditionals="0" methods="15" coveredmethods="0"/>
+      <metrics statements="105" coveredstatements="31" conditionals="60" coveredconditionals="6" methods="15" coveredmethods="3"/>
       <file name="LiveMatchMarketController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Tennis\LiveMatchMarketController.js">
         <metrics statements="13" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
@@ -286,28 +287,28 @@
         <line num="27" count="0" type="stmt"/>
       </file>
       <file name="PreMatchMarketController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Tennis\PreMatchMarketController.js">
-        <metrics statements="21" coveredstatements="6" conditionals="8" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="2" count="5" type="stmt"/>
-        <line num="3" count="5" type="stmt"/>
-        <line num="4" count="5" type="stmt"/>
-        <line num="5" count="5" type="stmt"/>
-        <line num="7" count="5" type="stmt"/>
-        <line num="12" count="5" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="18" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="29" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
+        <metrics statements="21" coveredstatements="21" conditionals="8" coveredconditionals="6" methods="3" coveredmethods="3"/>
+        <line num="2" count="6" type="stmt"/>
+        <line num="3" count="6" type="stmt"/>
+        <line num="4" count="6" type="stmt"/>
+        <line num="5" count="6" type="stmt"/>
+        <line num="7" count="6" type="stmt"/>
+        <line num="12" count="6" type="stmt"/>
+        <line num="13" count="6" type="stmt"/>
+        <line num="15" count="6" type="stmt"/>
+        <line num="18" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="26" count="4" type="stmt"/>
+        <line num="28" count="45" type="stmt"/>
+        <line num="29" count="36" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="43" count="4" type="stmt"/>
+        <line num="46" count="4" type="stmt"/>
+        <line num="54" count="4" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="64" count="4" type="stmt"/>
+        <line num="65" count="4" type="stmt"/>
       </file>
       <file name="PreMatchOddsController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Tennis\PreMatchOddsController.js">
         <metrics statements="71" coveredstatements="5" conditionals="52" coveredconditionals="0" methods="11" coveredmethods="0"/>
@@ -402,8 +403,8 @@
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="bookmakers.js" path="C:\Users\admin\Desktop\sportsbook\constants\bookmakers.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="2" count="8" type="stmt"/>
-        <line num="23" count="8" type="stmt"/>
+        <line num="2" count="9" type="stmt"/>
+        <line num="23" count="9" type="stmt"/>
       </file>
     </package>
     <package name="sportsbook.market-processors.Common">
@@ -534,7 +535,7 @@
         <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="74" count="0" type="stmt"/>
         <line num="82" count="0" type="stmt"/>
-        <line num="86" count="5" type="stmt"/>
+        <line num="86" count="6" type="stmt"/>
         <line num="87" count="0" type="stmt"/>
       </file>
     </package>
@@ -572,13 +573,13 @@
       </file>
       <file name="PreMatchOdds.js" path="C:\Users\admin\Desktop\sportsbook\models\Cricket\PreMatchOdds.js">
         <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="5" type="stmt"/>
-        <line num="3" count="5" type="stmt"/>
-        <line num="11" count="5" type="stmt"/>
-        <line num="17" count="5" type="stmt"/>
-        <line num="29" count="5" type="stmt"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="12" count="5" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
         <line num="30" count="5" type="stmt"/>
-        <line num="32" count="5" type="stmt"/>
+        <line num="31" count="5" type="stmt"/>
+        <line num="33" count="5" type="stmt"/>
       </file>
     </package>
     <package name="sportsbook.models.Football">
@@ -645,11 +646,11 @@
       </file>
       <file name="PreMatchmarket.js" path="C:\Users\admin\Desktop\sportsbook\models\Tennis\PreMatchmarket.js">
         <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="2" count="5" type="stmt"/>
-        <line num="4" count="5" type="stmt"/>
-        <line num="9" count="5" type="stmt"/>
-        <line num="15" count="5" type="stmt"/>
-        <line num="30" count="5" type="stmt"/>
+        <line num="2" count="6" type="stmt"/>
+        <line num="4" count="6" type="stmt"/>
+        <line num="9" count="6" type="stmt"/>
+        <line num="15" count="6" type="stmt"/>
+        <line num="30" count="6" type="stmt"/>
       </file>
     </package>
     <package name="sportsbook.routes">
@@ -691,8 +692,8 @@
       <metrics statements="13" coveredstatements="13" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="5"/>
       <file name="api.js" path="C:\Users\admin\Desktop\sportsbook\utils\api.js">
         <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
-        <line num="6" count="9" type="stmt"/>
-        <line num="7" count="9" type="stmt"/>
+        <line num="6" count="10" type="stmt"/>
+        <line num="7" count="10" type="stmt"/>
         <line num="12" count="3" type="stmt"/>
         <line num="18" count="3" type="stmt"/>
         <line num="25" count="1" type="stmt"/>
@@ -700,7 +701,7 @@
         <line num="31" count="2" type="stmt"/>
         <line num="36" count="1" type="stmt"/>
         <line num="41" count="1" type="stmt"/>
-        <line num="46" count="9" type="stmt"/>
+        <line num="46" count="10" type="stmt"/>
       </file>
       <file name="dataFormatter.js" path="C:\Users\admin\Desktop\sportsbook\utils\dataFormatter.js">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
