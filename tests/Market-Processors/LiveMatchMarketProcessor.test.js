@@ -54,6 +54,25 @@ describe('processLiveMatchMarket', () => {
     );
   });
 
+  it('should handle missing eventData in API response', async () => {
+    const eventIds = ['event7'];
+  
+    // Mock API response with success but no eventData
+    nock(API_BASE_URL)
+      .get('/event')
+      .query({ evId: 'event7' })
+      .reply(200, {
+        success: true
+        // No eventData property
+      });
+  
+    const result = await processLiveMatchMarket(eventIds);
+  
+    // Should return empty result
+    expect(result.count).toBe(0);
+    expect(result.markets).toEqual([]);
+  });
+
   // Test case 2: It should ignore markets that have no name or are duplicates
   it('should skip markets without name and avoid duplicates', async () => {
     const eventIds = ['event3'];
@@ -100,6 +119,30 @@ describe('processLiveMatchMarket', () => {
     expect(result.count).toBe(0);
     expect(result.markets).toEqual([]);
   });
+
+
+  // Add this test case to the main describe block
+it('should handle missing markets array in eventData', async () => {
+  const eventIds = ['event6'];
+
+  // Mock API response with eventData but no markets array
+  nock(API_BASE_URL)
+    .get('/event')
+    .query({ evId: 'event6' })
+    .reply(200, {
+      success: true,
+      eventData: {
+        // No markets property
+        otherData: 'some value'
+      }
+    });
+
+  const result = await processLiveMatchMarket(eventIds);
+
+  // Should return empty result
+  expect(result.count).toBe(0);
+  expect(result.markets).toEqual([]);
+});
 
   // Test case 4: If the API request itself fails (network error, etc.), log the error and continue
   it('should log error and continue if API call fails', async () => {

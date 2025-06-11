@@ -1,3 +1,4 @@
+// tests\controllers\ICEHOCKEY\PreMatchOddsController.test.js
 // This file tests the Ice Hockey Pre-Match Odds Controller
 // It checks if the controller correctly handles ice hockey betting odds before games start
 
@@ -8,6 +9,7 @@ const IceHockeyPreMatchOdds = require('../../../models/ICE_HOCKEY/PreMatchOdds')
 const { fetchBet365Data } = require('../../../utils/api'); // Function to get data from betting API
 const PreMatchOddsProcessor = require('../../../market-processors/Common/PreMatchOddsProcessor'); // Processes raw betting data
 const { TARGET_FIS_HOCKEY } = require('../../../constants/bookmakers'); // List of hockey events we want data for
+const BaseMarketProcessor = require('../../../market-processors/Common/BaseMarketProcessor');
 
 // Tell Jest to create fake versions of these modules (so we don't call real API/database)
 jest.mock('../../../utils/api');
@@ -85,6 +87,23 @@ test('should handle empty markets array gracefully', async () => {
       markets: []
     }]);
   });
+
+  test('should handle error without message field gracefully', async () => {
+    // Mock fetchBet365Data to throw a generic error object without a message
+    fetchBet365Data.mockRejectedValue({});
+  
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+  
+    await IceHockeyPreMatchOddsController.IceHockeyPreMatchOdds(req, res);
+  
+    expect(res.statusCode).toBe(500);
+    expect(res._getJSONData()).toEqual({
+      error: 'Failed to process Ice Hockey odds',
+      details: undefined
+    });
+  });
+  
   
   // Enhanced database error test to verify logging
   test('should log database errors but still return data', async () => {
@@ -212,3 +231,5 @@ test('should handle empty markets array gracefully', async () => {
     expect(res._getJSONData()).toEqual([expectedResponse]); // Should get our processed data
   });
 });
+
+

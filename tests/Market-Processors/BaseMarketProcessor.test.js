@@ -1,3 +1,4 @@
+// tests\Market-Processors\BaseMarketProcessor.test.js
 // Import the BaseMarketProcessor module that we're testing
 const BaseMarketProcessor = require('../../market-processors/Common/BaseMarketProcessor');
 
@@ -42,6 +43,65 @@ describe('BaseMarketProcessor', () => {
       expect(result).toEqual({});
     });
 
+    // Add to the processSection describe block
+it('should skip submarkets without both id and name', () => {
+  const section = {
+    sp: {
+      marketWithoutId: {
+        sub1: { id: 10 }, // missing name
+        sub2: { name: 'No ID' }, // missing id
+        sub3: null, // null value
+        sub4: { id: 11, name: 'Valid Market' }
+      }
+    }
+  };
+  const result = {};
+  BaseMarketProcessor.processSection(section, result);
+  
+  expect(result).toEqual({
+    '11_Valid Market': {
+      id: '11',
+      name: 'Valid Market',
+      odds: []
+    }
+  });
+});
+
+// Add to a new describe block for addMarket method
+describe('addMarket', () => {
+  it('should not overwrite existing market', () => {
+    const marketData = { id: 1, name: 'Existing Market' };
+    const consolidatedMarkets = {
+      '1_Existing Market': {
+        id: '1',
+        name: 'Existing Market',
+        odds: ['existing odds']
+      }
+    };
+    
+    BaseMarketProcessor.addMarket(marketData, consolidatedMarkets);
+    
+    expect(consolidatedMarkets['1_Existing Market'].odds).toEqual(['existing odds']);
+  });
+});
+
+    it('should add submarkets when marketData does not have id and name', () => {
+      const section = {
+        sp: {
+          marketWithoutId: {
+            sub1: { id: 10, name: 'Both Teams To Score' },
+            sub2: { id: 11, name: 'Clean Sheet' }
+          }
+        }
+      };
+      const result = {};
+      BaseMarketProcessor.processSection(section, result);
+      
+      expect(result).toHaveProperty('10_Both Teams To Score');
+      expect(result).toHaveProperty('11_Clean Sheet');
+    });
+    
+
     // Test case: should handle nested submarkets within the sp section
     it('should handle nested submarkets inside sp', () => {
       const section = {
@@ -85,6 +145,34 @@ describe('BaseMarketProcessor', () => {
       expect(Array.isArray(sections)).toBe(true); // Should return an array
       expect(sections.length).toBe(9); // 7 direct sections + 2 from others array
     });
+
+    it('should skip null marketData in sp', () => {
+      const section = {
+        sp: {
+          marketA: null,
+          marketB: { id: 1, name: 'Moneyline' }
+        }
+      };
+      const result = {};
+      BaseMarketProcessor.processSection(section, result);
+      expect(result).toHaveProperty('1_Moneyline');
+    });
+    
+    it('should process submarkets when parent market lacks id and name', () => {
+      const section = {
+        sp: {
+          groupedMarkets: {
+            sub1: { id: 5, name: 'Double Chance' },
+            sub2: { id: 6, name: 'Draw No Bet' }
+          }
+        }
+      };
+      const result = {};
+      BaseMarketProcessor.processSection(section, result);
+      expect(result).toHaveProperty('5_Double Chance');
+      expect(result).toHaveProperty('6_Draw No Bet');
+    });
+    
 
     // Test case: should handle cases where others is not an array
     it('should return only valid sections if others is not an array', () => {

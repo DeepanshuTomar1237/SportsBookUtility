@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.44% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>17/18</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.25% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>13/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -114,21 +114,21 @@
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,12 +136,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -163,7 +163,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span></td><td class="text"><pre class="prettyprint lang-js">// market-processors\Football\BaseMarketProcessor.js
+<span class="cline-any cline-yes">11x</span></td><td class="text"><pre class="prettyprint lang-js">// market-processors\Football\BaseMarketProcessor.js
 const _ = require('lodash');
 &nbsp;
 class BaseMarketProcessor {
@@ -171,13 +171,13 @@ class BaseMarketProcessor {
     if (!sectionData?.sp) return;
 &nbsp;
     for (const marketData of Object.values(sectionData.sp)) {
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (!marketData) <span class="cstat-no" title="statement not covered" >continue;</span>
+      if (!marketData) continue;
       
       if (marketData.id &amp;&amp; marketData.name) {
         this.addMarket(marketData, consolidatedMarkets);
       } else {
         for (const subMarketData of Object.values(marketData)) {
-          <span class="missing-if-branch" title="else path not taken" >E</span>if (subMarketData?.id &amp;&amp; subMarketData?.name) {
+          if (subMarketData?.id &amp;&amp; subMarketData?.name) {
             this.addMarket(subMarketData, consolidatedMarkets);
           }
         }
@@ -190,7 +190,7 @@ class BaseMarketProcessor {
     const marketName = marketData.name;
     const marketKey = `${marketId}_${marketName}`;
 &nbsp;
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (!consolidatedMarkets[marketKey]) {
+    if (!consolidatedMarkets[marketKey]) {
       consolidatedMarkets[marketKey] = {
         id: marketId,
         name: marketName,
@@ -220,7 +220,7 @@ module.exports = BaseMarketProcessor;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-10T13:24:48.084Z
+                at 2025-06-11T05:12:57.949Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

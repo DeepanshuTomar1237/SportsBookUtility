@@ -19,7 +19,7 @@ exports.IceHockeyPreMatchOdds = async (req, res) => {
             id: 17,
             name: 'IceHockey',
             count: processedData.total_markets || 0,
-            markets: processedData.PRE_MATCH_MARKETS || []
+            markets: processedData.PRE_MATCH_MARKETS 
         };
 
         // Upsert into MongoDB
