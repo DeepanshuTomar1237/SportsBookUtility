@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">38.46% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">38.46% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -91,61 +91,64 @@
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">5x</span>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">require('dotenv').config();
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Controllers\Tennis\LiveMatchMarketController.js
+require('dotenv').config();
 const TennisLiveMarket = require('../../models/Tennis/LiveMatchMarket');
 const { processLiveMatchMarket } = require('../../market-processors/Common/LiveMatchMarketProcessor');
 const { TENNIS_LIVE_EVENT_IDS } = require('../../constants/bookmakers');
 &nbsp;
-exports.TennisLiveMatchMarket = <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const eventIds =  <span class="cstat-no" title="statement not covered" >TENNIS_LIVE_EVENT_IDS;</span>
-    const result = <span class="cstat-no" title="statement not covered" >await processLiveMatchMarket(eventIds);</span>
+exports.TennisLiveMatchMarket = async (req, res) =&gt; {
+  try {
+    const eventIds =  TENNIS_LIVE_EVENT_IDS;
+    const result = await processLiveMatchMarket(eventIds);
   
-<span class="cstat-no" title="statement not covered" >    result.marketKey = `football_${eventIds.join('_')}_${Date.now()}`;</span>
+    result.marketKey = `football_${eventIds.join('_')}_${Date.now()}`;
     
-    const savedMarket = <span class="cstat-no" title="statement not covered" >await TennisLiveMarket.findOneAndUpdate(</span>
+    const savedMarket = await TennisLiveMarket.findOneAndUpdate(
       { marketKey: result.marketKey },
       result,
       { upsert: true, new: true }
     );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    res.json([{</span>
+    res.json([{
       id: savedMarket.sportId,
       name: savedMarket.name,
       count: savedMarket.count,
       markets: savedMarket.markets
     }]);
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error('Controller Error:', error);</span>
-<span class="cstat-no" title="statement not covered" >    res.status(500).json({ error: 'Internal server error' });</span>
+    console.error('Controller Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };</pre></td></tr></table></pre>
 
@@ -154,7 +157,7 @@ exports.TennisLiveMatchMarket = <span class="fstat-no" title="function not cover
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-11T09:54:24.356Z
+                at 2025-06-11T11:06:14.102Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -1,95 +1,124 @@
-// market-processors\Tennis\PreMatchOdds.js
 class TennisPreMatchMarketProcessor {
-    static process(events) {
-      const consolidatedMarkets = {};
-      
-      for (const event of events) {
-        if (!event || !event.leagueId || !event.eventId) {
-          console.log('Skipping event - missing required fields:', event);
-          continue;
-        }
-        
-        // Get all market sections from the event
-        const sections = this.getEventSections(event);
-        
-        for (const section of sections) {
-          if (section && section.sp) {
-            this.processSection(section, consolidatedMarkets, event);
-          }
-        }
+  static process(events) {
+    const consolidatedMarkets = {};
+    const firstEvent = events.length > 0 ? events[0] : null;
+
+    for (const event of events) {
+      if (!event || !event.leagueId || !event.eventId) {
+        console.log('Skipping event - missing required fields:', event);
+        continue;
       }
-      
-      return Object.values(consolidatedMarkets);
-    }
-  
-    static getEventSections(event) {
-      return [
-        event.main,
-        event.specials,
-        event.games,
-        event.sets,
-        ...(Array.isArray(event.others) ? event.others : [])
-      ].filter(Boolean);
-    }
-  
-    static processSection(section, markets, event) {
-      for (const marketData of Object.values(section.sp)) {
-        if (!marketData) continue;
-        
-        if (marketData.id && marketData.name) {
-          this.addMarket(marketData, markets, event);
-        } else {
-          // Handle nested markets
-          for (const subMarket of Object.values(marketData)) {
-            if (subMarket?.id && subMarket?.name) {
-              this.addMarket(subMarket, markets, event);
-            }
-          }
+
+      const sections = this.getEventSections(event);
+
+      for (const section of sections) {
+        if (section?.sp) {
+          this.processSection(section, consolidatedMarkets, event, event === firstEvent);
         }
       }
     }
-  
-    static addMarket(marketData, markets, event) {
-      const marketId = marketData.id.toString();
-      let marketName = marketData.name;
+
+    return Object.values(consolidatedMarkets);
+  }
+
+  static getEventSections(event) {
+    // Get all possible sections dynamically
+    const allSections = Object.values(event).filter(
+      val => typeof val === 'object' && val !== null && val.sp
+    );
+    
+    // Also include explicitly known sections
+    const explicitSections = [
+      event.main,
+      event.specials,
+      event.games,
+      event.sets,
+      ...(Array.isArray(event.others) ? event.others : [])
+    ].filter(Boolean);
+
+    // Combine and deduplicate sections
+    const combined = [...new Set([...allSections, ...explicitSections])];
+    return combined;
+  }
+
+  static processSection(section, markets, event, includeOdds) {
+    const processMarket = (market) => {
+      if (!market?.id || !market?.name) return;
       
-      // Replace player names with Home/Away
+      const marketId = market.id.toString();
+      let marketName = market.name;
+
       if (event.home) {
-          marketName = marketName.replace(new RegExp(this.escapeRegExp(event.home), 'g'), 'Home');
-  
+        marketName = marketName.replace(new RegExp(this.escapeRegExp(event.home), 'g'), 'Home');
       }
       if (event.away) {
-          marketName = marketName.replace(new RegExp(this.escapeRegExp(event.away), 'g'), 'Away');
-  
+        marketName = marketName.replace(new RegExp(this.escapeRegExp(event.away), 'g'), 'Away');
       }
-      
+
       const marketKey = `${marketId}_${marketName}`;
-  
+
       if (!markets[marketKey]) {
         markets[marketKey] = {
           id: marketId,
           name: marketName,
-          leagues: []
+          leagues: [],
+          odds: null
         };
       }
-  
-      // Add league info if not already present
+
       const leagueInfo = {
         id: event.eventId,
         name: event.leagueId
       };
-      
+
       if (!markets[marketKey].leagues.some(l => l.id === leagueInfo.id)) {
         markets[marketKey].leagues.push(leagueInfo);
       }
-    }
-  
-    static escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      if (includeOdds && !markets[marketKey].odds) {
+        const extracted = this.extractOdds(market);
+        if (Object.keys(extracted).length > 0) {
+          markets[marketKey].odds = extracted;
+        }
+      }
+    };
+
+    // Process top-level markets
+    for (const marketData of Object.values(section.sp)) {
+      if (!marketData) continue;
+
+      // Handle container markets (with sub-markets)
+      if (marketData.sp && typeof marketData.sp === 'object') {
+        for (const subMarket of Object.values(marketData.sp)) {
+          processMarket(subMarket);
+        }
+      } 
+      // Handle regular markets
+      else {
+        processMarket(marketData);
+      }
     }
   }
-  
-  module.exports = { 
-    processOdds: (events) => TennisPreMatchMarketProcessor.process(events) 
-  };
-  
+
+  static extractOdds(marketData) {
+    const odds = {};
+
+    if (marketData.odds) {
+      return marketData.odds;
+    } else if (marketData.sp) {
+      for (const [outcome, outcomeData] of Object.entries(marketData.sp)) {
+        if (outcomeData.odds) {
+          odds[outcome] = outcomeData.odds;
+        }
+      }
+    }
+
+    return odds;
+  }
+
+  static escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+}
+
+module.exports = TennisPreMatchMarketProcessor;
