@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1749645219807" clover="3.2.0">
-  <project timestamp="1749645219807" name="All files">
-    <metrics statements="551" coveredstatements="517" conditionals="210" coveredconditionals="186" methods="78" coveredmethods="73" elements="839" coveredelements="776" complexity="0" loc="551" ncloc="551" packages="17" files="37" classes="37"/>
+<coverage generated="1749645631891" clover="3.2.0">
+  <project timestamp="1749645631891" name="All files">
+    <metrics statements="551" coveredstatements="519" conditionals="210" coveredconditionals="186" methods="78" coveredmethods="74" elements="839" coveredelements="779" complexity="0" loc="551" ncloc="551" packages="17" files="37" classes="37"/>
     <package name="sportsbook">
       <metrics statements="14" coveredstatements="10" conditionals="4" coveredconditionals="1" methods="2" coveredmethods="0"/>
       <file name="server.js" path="C:\Users\admin\Desktop\sportsbook\server.js">
@@ -545,19 +545,19 @@
       </file>
     </package>
     <package name="sportsbook.models">
-      <metrics statements="10" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <file name="CommonFootballandIceHockeyOdds.js" path="C:\Users\admin\Desktop\sportsbook\models\CommonFootballandIceHockeyOdds.js">
-        <metrics statements="10" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="2" count="6" type="stmt"/>
-        <line num="5" count="6" type="stmt"/>
-        <line num="16" count="6" type="stmt"/>
-        <line num="21" count="6" type="stmt"/>
-        <line num="32" count="6" type="stmt"/>
-        <line num="33" count="6" type="stmt"/>
-        <line num="36" count="6" type="stmt"/>
-        <line num="37" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="41" count="6" type="stmt"/>
+        <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="2" count="7" type="stmt"/>
+        <line num="5" count="7" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
+        <line num="21" count="7" type="stmt"/>
+        <line num="32" count="7" type="stmt"/>
+        <line num="33" count="7" type="stmt"/>
+        <line num="39" count="7" type="stmt"/>
+        <line num="42" count="6" type="stmt"/>
+        <line num="45" count="6" type="stmt"/>
+        <line num="49" count="7" type="stmt"/>
       </file>
     </package>
     <package name="sportsbook.models.Cricket">

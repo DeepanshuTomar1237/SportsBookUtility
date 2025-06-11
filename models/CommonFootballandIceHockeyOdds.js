@@ -33,9 +33,17 @@ CommonMarketSchema.index({ football_market_id: 1, ice_hockey_market_id: 1 }, { u
 CommonMarketSchema.index({ name: 1 });
 
 // Automatically update `updatedAt` before save
+// This is a pre-save middleware hook for the CommonMarketSchema in Mongoose.
+// It runs **before** saving a document to the MongoDB database.
+
 CommonMarketSchema.pre('save', function (next) {
+  // `this` refers to the current document that is about to be saved.
+  // We're setting the `updatedAt` field to the current timestamp.
   this.updatedAt = Date.now();
+
+  // Call `next()` to pass control to the next middleware or to continue the save operation.
   next();
 });
+
 
 module.exports = mongoose.model('CommonFootballandIceHockeyOdds', CommonMarketSchema);
