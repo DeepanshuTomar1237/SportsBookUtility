@@ -28,7 +28,7 @@ exports.TennisPreMatchMarket = async (req, res) => {
         const event = response.results.find(ev => ev.FI?.toString() === fi);
         if (!event) return null;
         
-        const eventInfo = TENNIS_EVENTS[fi] || {};
+        const eventInfo = TENNIS_EVENTS[fi];
         return {
           ...event,
           home: eventInfo.home,

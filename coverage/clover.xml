@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1749633593259" clover="3.2.0">
-  <project timestamp="1749633593259" name="All files">
-    <metrics statements="549" coveredstatements="405" conditionals="214" coveredconditionals="114" methods="78" coveredmethods="52" elements="841" coveredelements="571" complexity="0" loc="549" ncloc="549" packages="17" files="36" classes="36"/>
+<coverage generated="1749635664440" clover="3.2.0">
+  <project timestamp="1749635664441" name="All files">
+    <metrics statements="549" coveredstatements="405" conditionals="212" coveredconditionals="114" methods="78" coveredmethods="52" elements="839" coveredelements="571" complexity="0" loc="549" ncloc="549" packages="17" files="36" classes="36"/>
     <package name="sportsbook">
       <metrics statements="14" coveredstatements="10" conditionals="4" coveredconditionals="1" methods="2" coveredmethods="0"/>
       <file name="server.js" path="C:\Users\admin\Desktop\sportsbook\server.js">
@@ -269,7 +269,7 @@
       </file>
     </package>
     <package name="sportsbook.Controllers.Tennis">
-      <metrics statements="105" coveredstatements="31" conditionals="60" coveredconditionals="6" methods="15" coveredmethods="3"/>
+      <metrics statements="105" coveredstatements="31" conditionals="58" coveredconditionals="6" methods="15" coveredmethods="3"/>
       <file name="LiveMatchMarketController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Tennis\LiveMatchMarketController.js">
         <metrics statements="13" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="5" type="stmt"/>
@@ -287,28 +287,28 @@
         <line num="27" count="0" type="stmt"/>
       </file>
       <file name="PreMatchMarketController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Tennis\PreMatchMarketController.js">
-        <metrics statements="21" coveredstatements="21" conditionals="8" coveredconditionals="6" methods="3" coveredmethods="3"/>
+        <metrics statements="21" coveredstatements="21" conditionals="6" coveredconditionals="6" methods="3" coveredmethods="3"/>
         <line num="2" count="6" type="stmt"/>
         <line num="3" count="6" type="stmt"/>
         <line num="4" count="6" type="stmt"/>
         <line num="5" count="6" type="stmt"/>
         <line num="7" count="6" type="stmt"/>
         <line num="12" count="6" type="stmt"/>
-        <line num="13" count="6" type="stmt"/>
-        <line num="15" count="6" type="stmt"/>
-        <line num="18" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="8" type="stmt"/>
+        <line num="15" count="8" type="stmt"/>
+        <line num="18" count="6" type="cond" truecount="2" falsecount="0"/>
         <line num="19" count="1" type="stmt"/>
-        <line num="26" count="4" type="stmt"/>
-        <line num="28" count="45" type="stmt"/>
-        <line num="29" count="36" type="cond" truecount="2" falsecount="0"/>
-        <line num="31" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="26" count="5" type="stmt"/>
+        <line num="28" count="54" type="stmt"/>
+        <line num="29" count="45" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="4" type="stmt"/>
         <line num="32" count="4" type="stmt"/>
-        <line num="43" count="4" type="stmt"/>
-        <line num="46" count="4" type="stmt"/>
-        <line num="54" count="4" type="stmt"/>
-        <line num="61" count="1" type="stmt"/>
-        <line num="64" count="4" type="stmt"/>
-        <line num="65" count="4" type="stmt"/>
+        <line num="43" count="5" type="stmt"/>
+        <line num="46" count="5" type="stmt"/>
+        <line num="54" count="5" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="64" count="5" type="stmt"/>
+        <line num="65" count="5" type="stmt"/>
       </file>
       <file name="PreMatchOddsController.js" path="C:\Users\admin\Desktop\sportsbook\Controllers\Tennis\PreMatchOddsController.js">
         <metrics statements="71" coveredstatements="5" conditionals="52" coveredconditionals="0" methods="11" coveredmethods="0"/>

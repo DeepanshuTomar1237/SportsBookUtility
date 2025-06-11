@@ -1,4 +1,3 @@
-// tests/controllers/Tennis/PreMatchMarketController.test.js
 const { TennisPreMatchMarket } = require('../../../controllers/Tennis/PreMatchMarketController');
 const PreMatchMarket = require('../../../models/Tennis/PreMatchmarket');
 const { fetchBet365Data } = require('../../../utils/api');
@@ -11,7 +10,7 @@ jest.mock('../../../market-processors/Tennis/PreMatchProcessor');
 
 describe('TennisPreMatchMarket Controller', () => {
   let req, res;
-  let originalNodeEnv;
+  let originalNodeEnv; // Declare a variable to store the original NODE_ENV
 
   beforeEach(() => {
     req = {};
@@ -20,23 +19,21 @@ describe('TennisPreMatchMarket Controller', () => {
       json: jest.fn()
     };
     
-    // Store original NODE_ENV
+    // Store the original NODE_ENV and set it to 'development' for tests
     originalNodeEnv = process.env.NODE_ENV;
-    // Set NODE_ENV to development for tests that expect detailed errors
     process.env.NODE_ENV = 'development';
-
-    // Clear all mocks before each test
+    
     jest.clearAllMocks();
   });
 
   afterEach(() => {
-    // Restore original NODE_ENV after each test
+    // Restore the original NODE_ENV after each test
     process.env.NODE_ENV = originalNodeEnv;
   });
 
   describe('Successful data processing', () => {
     it('should process tennis prematch markets successfully', async () => {
-      // Mock API response - use a FI that has complete metadata
+      // Find an FI that has an ID in TENNIS_EVENTS for realistic mocking
       const fiWithId = Object.keys(TENNIS_EVENTS).find(key => TENNIS_EVENTS[key].id);
       const mockEventData = TENNIS_EVENTS[fiWithId];
 
@@ -52,13 +49,11 @@ describe('TennisPreMatchMarket Controller', () => {
       
       fetchBet365Data.mockResolvedValue(mockApiResponse);
       
-      // Mock processed markets
       const mockProcessedMarkets = [
         { id: '1', name: 'Match Winner', leagues: [] }
       ];
       processMarkets.mockReturnValue(mockProcessedMarkets);
       
-      // Mock database update
       const mockDbResponse = {
         id: 13,
         name: 'Tennis',
@@ -69,13 +64,8 @@ describe('TennisPreMatchMarket Controller', () => {
       
       await TennisPreMatchMarket(req, res);
       
-      // Verify API was called with correct parameters
       expect(fetchBet365Data).toHaveBeenCalledWith(TARGET_FIS_TENNIS);
-      
-      // Verify markets were processed
       expect(processMarkets).toHaveBeenCalled();
-      
-      // Verify database was updated
       expect(PreMatchMarket.findOneAndUpdate).toHaveBeenCalledWith(
         { id: 13 },
         expect.objectContaining({
@@ -86,8 +76,6 @@ describe('TennisPreMatchMarket Controller', () => {
         }),
         { upsert: true, new: true }
       );
-      
-      // Verify response
       expect(res.json).toHaveBeenCalledWith(mockDbResponse);
     });
   });
@@ -114,7 +102,7 @@ describe('TennisPreMatchMarket Controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         error: 'Failed to process tennis prematch data',
-        details: mockError.message // Now expects the message due to NODE_ENV='development'
+        details: mockError.message
       });
     });
     
@@ -143,14 +131,28 @@ describe('TennisPreMatchMarket Controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         error: 'Failed to process tennis prematch data',
-        details: mockError.message // Now expects the message due to NODE_ENV='development'
+        details: mockError.message
+      });
+    });
+
+    it('should not expose error details in production environment', async () => {
+      // Temporarily set NODE_ENV to production for this specific test
+      process.env.NODE_ENV = 'production'; 
+      const mockError = new Error('API failed');
+      fetchBet365Data.mockRejectedValue(mockError);
+      
+      await TennisPreMatchMarket(req, res);
+      
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Failed to process tennis prematch data',
+        details: undefined
       });
     });
   });
 
   describe('Data enrichment', () => {
     it('should correctly enrich events with metadata', async () => {
-      // Use a FI that has an 'id' property in TENNIS_EVENTS
       const fiWithId = Object.keys(TENNIS_EVENTS).find(key => TENNIS_EVENTS[key].id);
       const eventInfo = TENNIS_EVENTS[fiWithId];
 
@@ -172,7 +174,6 @@ describe('TennisPreMatchMarket Controller', () => {
       
       await TennisPreMatchMarket(req, res);
       
-      // Verify the processor was called with enriched event
       expect(processMarkets).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -180,38 +181,34 @@ describe('TennisPreMatchMarket Controller', () => {
             home: eventInfo.home,
             away: eventInfo.away,
             leagueId: eventInfo.leagueId,
-            eventId: eventInfo.id // This should now be present
+            eventId: eventInfo.id
           })
         ])
       );
     });
     
     it('should pass events with undefined eventId to processor, and filter out non-matching FIs', async () => {
-        // Find a FI that exists in TENNIS_EVENTS but DOES NOT have an 'id' property defined
-        const fiWithoutId = Object.keys(TENNIS_EVENTS).find(key => !TENNIS_EVENTS[key].id);
-        const eventInfoWithoutId = TENNIS_EVENTS[fiWithoutId];
+      const fiWithoutId = Object.keys(TENNIS_EVENTS).find(key => !TENNIS_EVENTS[key].id);
+      const eventInfoWithoutId = TENNIS_EVENTS[fiWithoutId];
 
-        const mockApiResponse = {
-            results: [
-              {
-                FI: '999', // This FI is NOT in TARGET_FIS_TENNIS, so the controller will filter it out (map to null -> filter(Boolean))
-                market1: { sp: { id: 101, name: 'Market A' } }
-              },
-              {
-                FI: fiWithoutId.toString(), // This FI is in TARGET_FIS_TENNIS, but TENNIS_EVENTS[fiWithoutId] has no 'id'
-                market2: { sp: { id: 102, name: 'Market B' } }
-              }
-            ]
-          };
+      const mockApiResponse = {
+        results: [
+          {
+            FI: '999', // This FI is not in TENNIS_EVENTS and should be filtered out
+            market1: { sp: { id: 101, name: 'Market A' } }
+          },
+          {
+            FI: fiWithoutId.toString(), // This FI is in TENNIS_EVENTS but has no `id` property
+            market2: { sp: { id: 102, name: 'Market B' } }
+          }
+        ]
+      };
       
       fetchBet365Data.mockResolvedValue(mockApiResponse);
+      processMarkets.mockReturnValue([]);
       
       await TennisPreMatchMarket(req, res);
       
-      // The controller will process TARGET_FIS_TENNIS.
-      // For the entry corresponding to '999', it will result in `null` after the `find`, and be removed by `filter(Boolean)`.
-      // For the entry corresponding to `fiWithoutId`, it will be enriched, but `eventId` will be `undefined`.
-      // This enriched object (with `eventId: undefined`) IS PASSED to `processMarkets`.
       expect(processMarkets).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -219,16 +216,48 @@ describe('TennisPreMatchMarket Controller', () => {
             home: eventInfoWithoutId.home,
             away: eventInfoWithoutId.away,
             leagueId: eventInfoWithoutId.leagueId,
-            eventId: undefined // This is the expected state for this event
+            eventId: undefined // Expect eventId to be undefined for this case
           })
         ])
       );
-
-      // Optionally, you can assert that `processMarkets` was NOT called with the '999' event
+      // Ensure the non-matching FI was not passed to processMarkets
       expect(processMarkets).not.toHaveBeenCalledWith(
-          expect.arrayContaining([
-              expect.objectContaining({ FI: '999' })
-          ])
+        expect.arrayContaining([
+          expect.objectContaining({ FI: '999' })
+        ])
+      );
+    });
+
+    
+
+    it('should handle empty enrichedEvents array', async () => {
+      // Mock an API response with events that won't match any TARGET_FIS_TENNIS,
+      // resulting in an empty `enrichedEvents` array after filtering.
+      const mockApiResponse = {
+        results: [{
+          FI: '999', // Not in TARGET_FIS_TENNIS
+          market1: { sp: { id: 1, name: 'Market' } }
+        }]
+      };
+      
+      fetchBet365Data.mockResolvedValue(mockApiResponse);
+      processMarkets.mockReturnValue([]); // processMarkets will be called with an empty array
+      PreMatchMarket.findOneAndUpdate.mockResolvedValue({
+        id: 13,
+        name: 'Tennis',
+        count: 0,
+        markets: []
+      });
+      
+      await TennisPreMatchMarket(req, res);
+      
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 13,
+          name: 'Tennis',
+          count: 0,
+          markets: []
+        })
       );
     });
   });
