@@ -15,7 +15,7 @@ const { LiveICEMatchMarket } = require("../controllers/ICE_HOCKEY/LiveMatchMarke
 const { CricketPreMatchMarket } = require('../controllers/Cricket/PreMatchMarketController');
 const { CricketPreMatchOdds } = require('../controllers/Cricket/PreMatchoddsController');    
 const { LiveCricketMatchMarket } = require('../controllers/Cricket/LiveMatchMarketController');
-const { getCombinedSportsOdds } = require('../controllers/CombinedSportsOddsController');
+const { getCombinedSportsOdds } = require('../controllers/FootballIceHockeyCombinedOddsController');
 
 // Football Routes
 router.get('/football/pre-match/market/list', PreMatchMarket);
