@@ -31,8 +31,10 @@ describe('Football PreMatchMarket Controller', () => {
   // This runs before each test to reset mocks and avoid mixing data between tests
   beforeEach(() => {
     jest.clearAllMocks(); // reset all mock calls
-    jest.spyOn(console, 'log').mockImplementation(() => {}); // mute console logs during test
+    jest.spyOn(console, 'log').mockImplementation(() => {}); // mute console.log
+    jest.spyOn(console, 'error').mockImplementation(() => {}); // mute console.error
   });
+  
 
   // This runs after each test to clean up any mocked console logs
   afterEach(() => {

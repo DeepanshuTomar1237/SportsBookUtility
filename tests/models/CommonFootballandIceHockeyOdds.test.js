@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const CommonOdds = require('../../models/CommonFootballandIceHockeyOdds');
+const { add } = require('lodash');
 
 let mongoServer;
 
@@ -102,3 +103,4 @@ describe('CommonFootballandIceHockeyOdds Model', () => {
     expect(doc.updatedAt.getTime()).toBeGreaterThan(initialUpdatedAt.getTime());
   });
 });
+

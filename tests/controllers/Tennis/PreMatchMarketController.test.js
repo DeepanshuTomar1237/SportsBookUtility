@@ -19,18 +19,23 @@ describe('TennisPreMatchMarket Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+  
+    jest.spyOn(console, 'log').mockImplementation(() => {}); // ⬅ Clear console.log output
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     
-    // Store the original NODE_ENV and set it to 'development' for tests
     originalNodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
     
     jest.clearAllMocks();
   });
+  
 
   afterEach(() => {
-    // Restore the original NODE_ENV after each test
     process.env.NODE_ENV = originalNodeEnv;
+    console.log.mockRestore();  // ⬅ Restore console.log
+    console.error.mockRestore();
   });
+  
 
   describe('Successful data processing', () => {
     it('should process tennis prematch markets successfully', async () => {

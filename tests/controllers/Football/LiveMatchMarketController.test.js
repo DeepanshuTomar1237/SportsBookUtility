@@ -132,15 +132,19 @@ describe('LiveMatchMarket Controller', () => {
 
   //  Test: API should respond with error if processor fails
   it('should handle processor errors gracefully', async () => {
-    processLiveMatchMarket.mockRejectedValue(new Error('API Error')); // Simulate failure
-
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+    processLiveMatchMarket.mockRejectedValue(new Error('API Error'));
+  
     const response = await request(app)
       .get('/api/football/live-match/market/list')
-      .expect(500); // Expect HTTP 500 (Server Error)
-
-    // Even in case of error, return an empty list (fail-safe)
+      .expect(500);
+  
     expect(response.body).toEqual([{ count: 0, markets: [] }]);
+  
+    consoleSpy.mockRestore(); // Restore console.error after test
   });
+  
 
   //  Test: API response should not include MongoDB _id field
   it('should exclude _id from response', async () => {

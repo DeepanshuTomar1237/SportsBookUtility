@@ -41,7 +41,9 @@ describe('Ice Hockey PreMatchMarket Controller', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {}); 
   });
+  
 
   // After each test, clean up
   afterEach(() => {
@@ -113,20 +115,25 @@ describe('Ice Hockey PreMatchMarket Controller', () => {
 
   // Test 3: Check how we handle API errors
   it('should handle API errors', async () => {
-    // Make our fake API throw an error
+    
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
     fetchBet365Data.mockRejectedValue(new Error('API error'));
-
-    // Make the request and expect a 500 (Server Error) status
+  
     const res = await request(app)
       .get('/api/ICE_HOCKEY/pre-match/market/list')
       .expect(500);
-
-    // Check we got the right error details
+  
     expect(res.body).toEqual({ 
       error: 'Failed to process Ice Hockey markets',
       details: 'API error'
     });
+  
+    //  Restore original console.error
+    errorSpy.mockRestore();
   });
+  
+  
 
   // Test 4: Check how we handle database problems
   it('should handle database errors', async () => {

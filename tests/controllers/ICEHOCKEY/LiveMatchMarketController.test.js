@@ -95,6 +95,7 @@ describe('Ice Hockey LiveMatchMarket Controller', () => {
 
   // Test 3: Error in market processor
   it('should handle processor errors gracefully', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     // 1. Mock processor throwing an error
     processLiveMatchMarket.mockRejectedValue(new Error('Service unavailable'));
 
@@ -105,6 +106,8 @@ describe('Ice Hockey LiveMatchMarket Controller', () => {
 
     // 3. Verify error response still follows our format
     expect(response.body).toEqual([{ count: 0, markets: [] }]);
+
+    consoleSpy.mockRestore();
   });
 
   // Test 4: Response should not include MongoDB internal fields

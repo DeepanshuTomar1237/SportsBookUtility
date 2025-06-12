@@ -23,7 +23,15 @@ jest.mock('../../../market-processors/Common/PreMatchOddsProcessor');
 
 describe('Football PreMatchOdds Controller', () => {
   // After each test, clear all mock data so tests stay independent
+
+  beforeEach(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {}); // suppress console.error
+  });
+
+
+
   afterEach(() => {
+    console.error.mockRestore(); // restore it after each test
     jest.clearAllMocks();
   });
 

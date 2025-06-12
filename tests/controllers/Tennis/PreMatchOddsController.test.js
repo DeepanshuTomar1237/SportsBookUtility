@@ -18,17 +18,25 @@ describe('TennisPreMatchOdds Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-    
+  
     originalNodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
-    
+  
+    // Suppress logs during test runs
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  
     jest.clearAllMocks();
-    console.log = jest.fn(); // Mock console.log
   });
-
+  
   afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv;
+  
+    // Restore the original implementations
+    console.log.mockRestore();
+    console.error.mockRestore();
   });
+  
 
   describe('Successful data processing', () => {
     it('should process tennis prematch odds successfully', async () => {

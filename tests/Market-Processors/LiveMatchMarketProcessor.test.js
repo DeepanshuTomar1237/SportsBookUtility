@@ -104,21 +104,27 @@ describe('processLiveMatchMarket', () => {
   // Test case 3: When the API fails (responds with success: false), function should return empty results
   it('should handle API failure gracefully and return empty result', async () => {
     const eventIds = ['event4'];
-
-    // Simulate API saying "not successful"
+  
+    // Suppress console.warn for this test
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  
     nock(API_BASE_URL)
       .get('/event')
       .query({ evId: 'event4' })
       .reply(200, {
-        success: false,
+        success: false, // Triggers the warning
       });
-
+  
     const result = await processLiveMatchMarket(eventIds);
-
-    // Expect no markets and zero count
+  
     expect(result.count).toBe(0);
     expect(result.markets).toEqual([]);
+  
+    // Restore original behavior
+    warnSpy.mockRestore();
   });
+  
+  
 
 
   // Add this test case to the main describe block

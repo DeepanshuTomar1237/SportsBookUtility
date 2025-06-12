@@ -17,7 +17,14 @@ describe('CricketPreMatchMarket Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
+
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    console.error.mockRestore();
   });
 
   it('should return 404 if no results are returned from fetchBet365Data', async () => {
